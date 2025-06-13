@@ -17,10 +17,10 @@ import (
 )
 
 type CSVProcessor struct {
-	logger      logger.Logger
-	batchSize   int
-	workerPool  int
-	bufferSize  int
+	logger     logger.Logger
+	batchSize  int
+	workerPool int
+	bufferSize int
 	cacheConfig *config.CacheConfig
 }
 
@@ -68,32 +68,39 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 	csvReader := csv.NewReader(bufferedReader)
 	csvReader.ReuseRecord = true
 
+	// Skip header row
 	if _, err := csvReader.Read(); err != nil {
 		return nil, fmt.Errorf("failed to read CSV header: %w", err)
 	}
 
+	// Setup concurrent processing pipeline with indexed batches
 	batchChan := make(chan IndexedBatch, 5)
 	resultChan := make(chan BatchResult, 5)
 
+	// Start worker goroutines
 	var wg sync.WaitGroup
 	for i := 0; i < p.workerPool; i++ {
 		wg.Add(1)
 		go p.processBatchWorker(ctx, batchChan, resultChan, &wg, i)
 	}
 
+	// Start batch reader goroutine
 	batchCount := make(chan int, 1)
 	go p.readBatches(ctx, csvReader, batchChan, batchCount)
 
+	// Close result channel when all workers are done
 	go func() {
 		wg.Wait()
 		close(resultChan)
 	}()
 
+	// Collect results with proper ordering
 	var allTransactions []models.Transaction
 	var totalRecords, errorCount, totalParseErrors int
 	batchResults := make(map[int]BatchResult)
 	maxBatchIndex := -1
 
+	// Collect all batch results
 	for result := range resultChan {
 		if result.Error != nil {
 			p.logger.Error("Batch processing error",
@@ -115,12 +122,14 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 			"parse_errors", result.ParseErrors)
 	}
 
+	// Wait for batch count
 	totalBatches := <-batchCount
 	p.logger.Info("Batch processing summary",
 		"total_batches", totalBatches,
 		"completed_batches", len(batchResults),
 		"max_batch_index", maxBatchIndex)
 
+	// Log missing batches for debugging
 	missingBatches := 0
 	for i := 0; i < totalBatches; i++ {
 		if _, exists := batchResults[i]; !exists {
@@ -135,6 +144,7 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 			"total_batches", totalBatches)
 	}
 
+	// Reassemble transactions in correct order
 	for i := 0; i < totalBatches; i++ {
 		if batch, exists := batchResults[i]; exists {
 			allTransactions = append(allTransactions, batch.Transactions...)
@@ -144,6 +154,7 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 		}
 	}
 
+	// Calculate memory usage
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
 	memoryUsageMB := float64(memStats.Alloc) / 1024 / 1024
@@ -179,23 +190,28 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 	}, nil
 }
 
+// PreprocessAndCache processes CSV and caches results for faster subsequent loads
 func (p *CSVProcessor) PreprocessAndCache(ctx context.Context, csvPath, cachePath string) (*models.ProcessingStats, error) {
+	// Process CSV
 	result, err := p.ProcessLargeCSV(ctx, csvPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process CSV: %w", err)
 	}
 
+	// Create analytics data
 	analyticsService := NewAnalyticsService(p.logger)
 	analytics := analyticsService.GenerateAnalytics(result.Transactions)
 
 	cacheService := NewCacheService(p.logger, p.cacheConfig)
 	if err := cacheService.SaveToFile(cachePath, analytics); err != nil {
 		p.logger.Error("Failed to save cache", "error", err)
+		// Don't fail the entire process if caching fails
 	}
 
 	return &result.Stats, nil
 }
 
+// readBatches reads CSV records in batches and sends them to the batch channel
 func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batchChan chan<- IndexedBatch, batchCount chan<- int) {
 	defer close(batchChan)
 
@@ -220,6 +236,7 @@ func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batc
 
 		record, err := reader.Read()
 		if err == io.EOF {
+			// Send final batch if it has records
 			if len(batch) > 0 {
 				select {
 				case batchChan <- IndexedBatch{Records: batch, Index: batchIndex}:
@@ -241,6 +258,7 @@ func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batc
 
 		totalRowsRead++
 
+		// Create a copy of the record since csv.Reader reuses the slice
 		recordCopy := make([]string, len(record))
 		copy(recordCopy, record)
 		batch = append(batch, recordCopy)
@@ -259,9 +277,11 @@ func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batc
 	}
 }
 
+// 	processBatchWorker processes batches of CSV records concurrently
 func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan IndexedBatch, resultChan chan<- BatchResult, wg *sync.WaitGroup, workerID int) {
 	defer wg.Done()
 
+	// Process indexed batches as they come from the channel
 	for indexedBatch := range batchChan {
 		select {
 		case <-ctx.Done():
@@ -279,7 +299,7 @@ func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan 
 			var transaction models.Transaction
 			if err := transaction.ParseCSVRow(record); err != nil {
 				parseErrors++
-				if parseErrors <= 5 {
+				if parseErrors <= 5 { // Log first 5 errors per batch
 					p.logger.Debug("Failed to parse CSV row",
 						"worker", workerID,
 						"batch", batchIndex,
@@ -299,6 +319,7 @@ func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan 
 			"output_transactions", len(transactions),
 			"parse_errors", parseErrors)
 
+		// Send result with correct batch index
 		resultChan <- BatchResult{
 			Transactions: transactions,
 			BatchIndex:   batchIndex,
