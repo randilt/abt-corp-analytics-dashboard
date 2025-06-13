@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"runtime"
 	"sync"
 	"time"
 
@@ -18,14 +17,12 @@ type CacheService struct {
 	mu        sync.RWMutex
 	cacheTime time.Time
 	cacheTTL  time.Duration
-	maxMemory int64
 }
 
 func NewCacheService(logger logger.Logger) *CacheService {
 	return &CacheService{
-		logger:    logger,
-		cacheTTL:  1 * time.Hour,
-		maxMemory: 500 * 1024 * 1024, // 500MB limit
+		logger:   logger,
+		cacheTTL: 24 * time.Hour, // Cache for 24 hours
 	}
 }
 
@@ -35,17 +32,6 @@ func (c *CacheService) LoadFromCache() (*models.AnalyticsResponse, bool) {
 	defer c.mu.RUnlock()
 
 	if c.cacheData == nil || time.Since(c.cacheTime) > c.cacheTTL {
-		return nil, false
-	}
-
-	// Check memory usage
-	var memStats runtime.MemStats
-	runtime.ReadMemStats(&memStats)
-	if memStats.Alloc > uint64(c.maxMemory) {
-		c.logger.Warn("Memory limit exceeded, clearing cache", 
-			"allocated", memStats.Alloc,
-			"limit", c.maxMemory)
-		c.cacheData = nil
 		return nil, false
 	}
 
@@ -59,16 +45,6 @@ func (c *CacheService) LoadFromCache() (*models.AnalyticsResponse, bool) {
 func (c *CacheService) SaveToMemory(data *models.AnalyticsResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
-	// Check memory usage before saving
-	var memStats runtime.MemStats
-	runtime.ReadMemStats(&memStats)
-	if memStats.Alloc > uint64(c.maxMemory) {
-		c.logger.Warn("Memory limit exceeded, skipping memory cache", 
-			"allocated", memStats.Alloc,
-			"limit", c.maxMemory)
-		return
-	}
 
 	c.cacheData = data
 	c.cacheTime = time.Now()
