@@ -4,11 +4,7 @@ High-performance analytics dashboard for ABT Corporation's transaction data. Bui
 
 Author: [Randil Tharusha](https://randiltharusha.me)
 
-![image](https://github.com/user-attachments/assets/2d91344c-e567-4540-89ca-fdc62c703570)
-
-![image](https://github.com/user-attachments/assets/df17dd11-a6b7-497b-ae97-20485c8fa8eb)
-
-![image](https://github.com/user-attachments/assets/a6be90ef-b875-498a-a770-3a32b0dbb10b)
+![APP SCREENSHOT](https://github.com/user-attachments/assets/e16777f0-fa59-41e4-8fdb-1c4e727ac3a9)
 
 ## Features
 
