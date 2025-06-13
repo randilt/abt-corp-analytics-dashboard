@@ -34,11 +34,7 @@ export function DebugInfo() {
       <VStack align="start" spacing={2}>
         <Text fontSize="sm">
           <strong>API Base URL:</strong>{" "}
-          <Code>
-            {import.meta.env.DEV
-              ? "/api/v1 (proxied)"
-              : "http://localhost:8080/api/v1"}
-          </Code>
+          <Code>http://localhost:8080/api/v1</Code>
         </Text>
 
         <Box>

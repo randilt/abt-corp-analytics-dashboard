@@ -16,7 +16,7 @@ interface TopRegionsChartProps {
 }
 
 export function TopRegionsChart({ data }: TopRegionsChartProps) {
-  const chartData = data.slice(0, 20).map((item) => ({
+  const chartData = data.slice(0, 30).map((item) => ({
     // Show top 20 for readability
     region:
       item.region.length > 15
@@ -40,7 +40,8 @@ export function TopRegionsChart({ data }: TopRegionsChartProps) {
         Top Regions by Revenue
       </Heading>
       <Text color="gray.600" mb={6}>
-        Revenue and items sold by region (showing top 20)
+        Revenue and items sold by region (showing top 30, Available{" "}
+        {data.length})
       </Text>
 
       <Box h="500px">
