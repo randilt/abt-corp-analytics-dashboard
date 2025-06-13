@@ -15,11 +15,12 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Host         string
-	Port         int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-	IdleTimeout  time.Duration
+	Host            string
+	Port            int
+	ReadTimeout     time.Duration
+	WriteTimeout    time.Duration
+	IdleTimeout     time.Duration
+	DefaultCacheTTL time.Duration
 }
 
 type CSVConfig struct {
@@ -42,11 +43,12 @@ type LoggerConfig struct {
 func LoadConfig() (*Config, error) {
 	config := &Config{
 		Server: ServerConfig{
-			Host:         getEnv("SERVER_HOST", "localhost"),
-			Port:         getEnvAsInt("SERVER_PORT", 8080),
-			ReadTimeout:  getEnvAsDuration("SERVER_READ_TIMEOUT", "15s"),
-			WriteTimeout: getEnvAsDuration("SERVER_WRITE_TIMEOUT", "15s"),
-			IdleTimeout:  getEnvAsDuration("SERVER_IDLE_TIMEOUT", "60s"),
+			Host:            getEnv("SERVER_HOST", "localhost"),
+			Port:            getEnvAsInt("SERVER_PORT", 8080),
+			ReadTimeout:     getEnvAsDuration("SERVER_READ_TIMEOUT", "15s"),
+			WriteTimeout:    getEnvAsDuration("SERVER_WRITE_TIMEOUT", "15s"),
+			IdleTimeout:     getEnvAsDuration("SERVER_IDLE_TIMEOUT", "60s"),
+			DefaultCacheTTL: getEnvAsDuration("SERVER_DEFAULT_CACHE_TTL", "24h"),
 		},
 		CSV: CSVConfig{
 			FilePath:   getEnv("CSV_FILE_PATH", "./data/raw/transactions.csv"),

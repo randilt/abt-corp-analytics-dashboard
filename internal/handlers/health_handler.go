@@ -21,7 +21,6 @@ func NewHealthHandler(logger logger.Logger) *HealthHandler {
 	}
 }
 
-// Health returns service health status
 func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
@@ -43,7 +42,6 @@ func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSONResponse(w, http.StatusOK, health)
 }
 
-// Ready returns readiness status
 func (h *HealthHandler) Ready(w http.ResponseWriter, r *http.Request) {
 	ready := map[string]interface{}{
 		"status":    "ready",

@@ -14,7 +14,13 @@ import (
 	"analytics-dashboard-api/internal/services"
 )
 
-// Mock services for testing
+type mockLogger struct{}
+
+func (m *mockLogger) Info(msg string, args ...interface{})  {}
+func (m *mockLogger) Error(msg string, args ...interface{}) {}
+func (m *mockLogger) Debug(msg string, args ...interface{}) {}
+func (m *mockLogger) Warn(msg string, args ...interface{})  {}
+
 type mockAnalyticsService struct {
 	generateAnalyticsFunc func([]models.Transaction) *models.AnalyticsResponse
 }
@@ -131,7 +137,6 @@ func TestAnalyticsHandler_GetAnalytics_FromMemoryCache(t *testing.T) {
 	analyticsService := &mockAnalyticsService{}
 	csvProcessor := &mockCSVProcessor{}
 
-	// Mock cache service that returns cached data
 	cacheService := &mockCacheService{
 		loadFromCacheFunc: func() (*models.AnalyticsResponse, bool) {
 			return &models.AnalyticsResponse{
@@ -158,193 +163,6 @@ func TestAnalyticsHandler_GetAnalytics_FromMemoryCache(t *testing.T) {
 
 	handler.GetAnalytics(recorder, req)
 
-	// Check status code
-	if recorder.Code != http.StatusOK {
-		t.Errorf("GetAnalytics() status = %d, want %d", recorder.Code, http.StatusOK)
-	}
-
-	// Parse response
-	var response map[string]interface{}
-	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
-		t.Fatalf("GetAnalytics() response parsing error: %v", err)
-	}
-
-	// Check that summary is returned
-	if summary, exists := response["summary"]; !exists {
-		t.Error("GetAnalytics() should return summary section")
-	} else if summaryMap, ok := summary.(map[string]interface{}); ok {
-		if cacheHit, exists := summaryMap["cache_hit"]; !exists || cacheHit != true {
-			t.Error("GetAnalytics() cache_hit should be true")
-		}
-	}
-}
-
-func TestAnalyticsHandler_GetCountryRevenue(t *testing.T) {
-	logger := &mockLogger{}
-	analyticsService := &mockAnalyticsService{}
-	csvProcessor := &mockCSVProcessor{}
-
-	// Mock cache service with country revenue data
-	cacheService := &mockCacheService{
-		loadFromCacheFunc: func() (*models.AnalyticsResponse, bool) {
-			return &models.AnalyticsResponse{
-				CountryRevenue: []models.CountryRevenue{
-					{Country: "USA", ProductName: "Product A", TotalRevenue: 1000.0, TransactionCount: 10},
-					{Country: "Canada", ProductName: "Product B", TotalRevenue: 800.0, TransactionCount: 8},
-					{Country: "Germany", ProductName: "Product C", TotalRevenue: 600.0, TransactionCount: 6},
-				},
-				TotalRecords: 100,
-			}, true
-		},
-	}
-
-	handler := handlers.NewAnalyticsHandler(
-		analyticsService,
-		cacheService,
-		csvProcessor,
-		logger,
-		"test.csv",
-		"test_cache.json",
-	)
-
-	// Test without pagination
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/country-revenue", nil)
-	recorder := httptest.NewRecorder()
-
-	handler.GetCountryRevenue(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Errorf("GetCountryRevenue() status = %d, want %d", recorder.Code, http.StatusOK)
-	}
-
-	var response map[string]interface{}
-	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
-		t.Fatalf("GetCountryRevenue() response parsing error: %v", err)
-	}
-
-	// Check pagination fields
-	expectedFields := []string{"data", "count", "total", "limit", "offset", "has_more"}
-	for _, field := range expectedFields {
-		if _, exists := response[field]; !exists {
-			t.Errorf("GetCountryRevenue() missing field: %s", field)
-		}
-	}
-
-	// Check data
-	if data, ok := response["data"].([]interface{}); ok {
-		if len(data) != 3 {
-			t.Errorf("GetCountryRevenue() data length = %d, want 3", len(data))
-		}
-	} else {
-		t.Error("GetCountryRevenue() data should be an array")
-	}
-}
-
-func TestAnalyticsHandler_GetCountryRevenue_WithPagination(t *testing.T) {
-	handler := createMockAnalyticsHandler()
-
-	// Test with pagination parameters
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/country-revenue?limit=2&offset=1", nil)
-	recorder := httptest.NewRecorder()
-
-	handler.GetCountryRevenue(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Errorf("GetCountryRevenue() with pagination status = %d, want %d", recorder.Code, http.StatusOK)
-	}
-
-	var response map[string]interface{}
-	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
-		t.Fatalf("GetCountryRevenue() response parsing error: %v", err)
-	}
-
-	// Check pagination values
-	if limit, ok := response["limit"].(float64); !ok || limit != 2 {
-		t.Errorf("GetCountryRevenue() limit = %v, want 2", response["limit"])
-	}
-
-	if offset, ok := response["offset"].(float64); !ok || offset != 1 {
-		t.Errorf("GetCountryRevenue() offset = %v, want 1", response["offset"])
-	}
-}
-
-func TestAnalyticsHandler_GetAnalyticsStats(t *testing.T) {
-	handler := createMockAnalyticsHandler()
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/stats", nil)
-	recorder := httptest.NewRecorder()
-
-	handler.GetAnalyticsStats(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Errorf("GetAnalyticsStats() status = %d, want %d", recorder.Code, http.StatusOK)
-	}
-
-	var response map[string]interface{}
-	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
-		t.Fatalf("GetAnalyticsStats() response parsing error: %v", err)
-	}
-
-	// Check required stats fields
-	expectedFields := []string{
-		"total_records", "processing_time_ms", "cache_hit",
-		"country_revenue_count", "top_products_count",
-		"monthly_sales_count", "top_regions_count", "endpoints",
-	}
-	for _, field := range expectedFields {
-		if _, exists := response[field]; !exists {
-			t.Errorf("GetAnalyticsStats() missing field: %s", field)
-		}
-	}
-
-	// Check endpoints structure
-	if endpoints, ok := response["endpoints"].(map[string]interface{}); ok {
-		endpointFields := []string{"country_revenue", "top_products", "monthly_sales", "top_regions"}
-		for _, field := range endpointFields {
-			if _, exists := endpoints[field]; !exists {
-				t.Errorf("GetAnalyticsStats() endpoints missing field: %s", field)
-			}
-		}
-	} else {
-		t.Error("GetAnalyticsStats() endpoints should be an object")
-	}
-}
-
-func TestAnalyticsHandler_GetTopProducts(t *testing.T) {
-	handler := createMockAnalyticsHandler()
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/top-products", nil)
-	recorder := httptest.NewRecorder()
-
-	handler.GetTopProducts(recorder, req)
-
-	if recorder.Code != http.StatusOK {
-		t.Errorf("GetTopProducts() status = %d, want %d", recorder.Code, http.StatusOK)
-	}
-
-	var response map[string]interface{}
-	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
-		t.Fatalf("GetTopProducts() response parsing error: %v", err)
-	}
-
-	// Check required fields
-	if _, exists := response["data"]; !exists {
-		t.Error("GetTopProducts() missing data field")
-	}
-
-	if _, exists := response["count"]; !exists {
-		t.Error("GetTopProducts() missing count field")
-	}
-}
-
-func TestAnalyticsHandler_GetMonthlySales(t *testing.T) {
-	handler := createMockAnalyticsHandler()
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/monthly-sales", nil)
-	recorder := httptest.NewRecorder()
-
-	handler.GetMonthlySales(recorder, req)
-
 	if recorder.Code != http.StatusOK {
 		t.Errorf("GetMonthlySales() status = %d, want %d", recorder.Code, http.StatusOK)
 	}
@@ -354,7 +172,6 @@ func TestAnalyticsHandler_GetMonthlySales(t *testing.T) {
 		t.Fatalf("GetMonthlySales() response parsing error: %v", err)
 	}
 
-	// Check required fields
 	if _, exists := response["data"]; !exists {
 		t.Error("GetMonthlySales() missing data field")
 	}
@@ -381,7 +198,6 @@ func TestAnalyticsHandler_GetTopRegions(t *testing.T) {
 		t.Fatalf("GetTopRegions() response parsing error: %v", err)
 	}
 
-	// Check required fields
 	if _, exists := response["data"]; !exists {
 		t.Error("GetTopRegions() missing data field")
 	}
@@ -396,7 +212,6 @@ func TestAnalyticsHandler_RefreshCache(t *testing.T) {
 	analyticsService := &mockAnalyticsService{}
 	cacheService := &mockCacheService{}
 
-	// Mock CSV processor for refresh
 	csvProcessor := &mockCSVProcessor{
 		preprocessAndCacheFunc: func(ctx context.Context, csvPath, cachePath string) (*models.ProcessingStats, error) {
 			return &models.ProcessingStats{
@@ -432,7 +247,6 @@ func TestAnalyticsHandler_RefreshCache(t *testing.T) {
 		t.Fatalf("RefreshCache() response parsing error: %v", err)
 	}
 
-	// Check required fields
 	expectedFields := []string{"message", "stats", "duration_ms"}
 	for _, field := range expectedFields {
 		if _, exists := response[field]; !exists {
@@ -440,7 +254,6 @@ func TestAnalyticsHandler_RefreshCache(t *testing.T) {
 		}
 	}
 
-	// Check message
 	if message, ok := response["message"].(string); !ok || message != "Cache refreshed successfully" {
 		t.Errorf("RefreshCache() message = %v, want 'Cache refreshed successfully'", response["message"])
 	}
@@ -460,7 +273,6 @@ func TestAnalyticsHandler_RefreshCache_MethodNotAllowed(t *testing.T) {
 }
 
 func TestAnalyticsHandler_GetIntQueryParam(t *testing.T) {
-	// This is testing a private method indirectly through GetCountryRevenue
 	handler := createMockAnalyticsHandler()
 
 	tests := []struct {
@@ -478,25 +290,25 @@ func TestAnalyticsHandler_GetIntQueryParam(t *testing.T) {
 		{
 			name:        "default values",
 			queryParams: "",
-			wantLimit:   100, // default limit
-			wantOffset:  0,   // default offset
+			wantLimit:   100,
+			wantOffset:  0,
 		},
 		{
 			name:        "invalid limit",
 			queryParams: "limit=abc&offset=5",
-			wantLimit:   100, // fallback to default
+			wantLimit:   100,
 			wantOffset:  5,
 		},
 		{
 			name:        "negative values",
 			queryParams: "limit=-10&offset=-5",
-			wantLimit:   100, // fallback to default
-			wantOffset:  0,   // fallback to default
+			wantLimit:   100,
+			wantOffset:  0,
 		},
 		{
 			name:        "limit over 1000",
 			queryParams: "limit=1500&offset=0",
-			wantLimit:   1000, // capped at 1000
+			wantLimit:   1000,
 			wantOffset:  0,
 		},
 	}
@@ -526,5 +338,180 @@ func TestAnalyticsHandler_GetIntQueryParam(t *testing.T) {
 				t.Errorf("offset = %v, want %v", response["offset"], tt.wantOffset)
 			}
 		})
+	}
+}
+
+func TestAnalyticsHandler_GetCountryRevenue(t *testing.T) {
+	logger := &mockLogger{}
+	analyticsService := &mockAnalyticsService{}
+	csvProcessor := &mockCSVProcessor{}
+
+	cacheService := &mockCacheService{
+		loadFromCacheFunc: func() (*models.AnalyticsResponse, bool) {
+			return &models.AnalyticsResponse{
+				CountryRevenue: []models.CountryRevenue{
+					{Country: "USA", ProductName: "Product A", TotalRevenue: 1000.0, TransactionCount: 10},
+					{Country: "Canada", ProductName: "Product B", TotalRevenue: 800.0, TransactionCount: 8},
+					{Country: "Germany", ProductName: "Product C", TotalRevenue: 600.0, TransactionCount: 6},
+				},
+				TotalRecords: 100,
+			}, true
+		},
+	}
+
+	handler := handlers.NewAnalyticsHandler(
+		analyticsService,
+		cacheService,
+		csvProcessor,
+		logger,
+		"test.csv",
+		"test_cache.json",
+	)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/country-revenue", nil)
+	recorder := httptest.NewRecorder()
+
+	handler.GetCountryRevenue(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("GetCountryRevenue() status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	var response map[string]interface{}
+	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
+		t.Fatalf("GetCountryRevenue() response parsing error: %v", err)
+	}
+
+	expectedFields := []string{"data", "count", "total", "limit", "offset", "has_more"}
+	for _, field := range expectedFields {
+		if _, exists := response[field]; !exists {
+			t.Errorf("GetCountryRevenue() missing field: %s", field)
+		}
+	}
+
+	if data, ok := response["data"].([]interface{}); ok {
+		if len(data) != 3 {
+			t.Errorf("GetCountryRevenue() data length = %d, want 3", len(data))
+		}
+	} else {
+		t.Error("GetCountryRevenue() data should be an array")
+	}
+}
+
+func TestAnalyticsHandler_GetCountryRevenue_WithPagination(t *testing.T) {
+	handler := createMockAnalyticsHandler()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/country-revenue?limit=2&offset=1", nil)
+	recorder := httptest.NewRecorder()
+
+	handler.GetCountryRevenue(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("GetCountryRevenue() with pagination status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	var response map[string]interface{}
+	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
+		t.Fatalf("GetCountryRevenue() response parsing error: %v", err)
+	}
+
+	if limit, ok := response["limit"].(float64); !ok || limit != 2 {
+		t.Errorf("GetCountryRevenue() limit = %v, want 2", response["limit"])
+	}
+
+	if offset, ok := response["offset"].(float64); !ok || offset != 1 {
+		t.Errorf("GetCountryRevenue() offset = %v, want 1", response["offset"])
+	}
+}
+
+func TestAnalyticsHandler_GetAnalyticsStats(t *testing.T) {
+	handler := createMockAnalyticsHandler()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/stats", nil)
+	recorder := httptest.NewRecorder()
+
+	handler.GetAnalyticsStats(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("GetAnalyticsStats() status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	var response map[string]interface{}
+	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
+		t.Fatalf("GetAnalyticsStats() response parsing error: %v", err)
+	}
+
+	expectedFields := []string{
+		"total_records", "processing_time_ms", "cache_hit",
+		"country_revenue_count", "top_products_count",
+		"monthly_sales_count", "top_regions_count", "endpoints",
+	}
+	for _, field := range expectedFields {
+		if _, exists := response[field]; !exists {
+			t.Errorf("GetAnalyticsStats() missing field: %s", field)
+		}
+	}
+
+	if endpoints, ok := response["endpoints"].(map[string]interface{}); ok {
+		endpointFields := []string{"country_revenue", "top_products", "monthly_sales", "top_regions"}
+		for _, field := range endpointFields {
+			if _, exists := endpoints[field]; !exists {
+				t.Errorf("GetAnalyticsStats() endpoints missing field: %s", field)
+			}
+		}
+	} else {
+		t.Error("GetAnalyticsStats() endpoints should be an object")
+	}
+}
+
+func TestAnalyticsHandler_GetTopProducts(t *testing.T) {
+	handler := createMockAnalyticsHandler()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/top-products", nil)
+	recorder := httptest.NewRecorder()
+
+	handler.GetTopProducts(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("GetTopProducts() status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	var response map[string]interface{}
+	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
+		t.Fatalf("GetTopProducts() response parsing error: %v", err)
+	}
+
+	if _, exists := response["data"]; !exists {
+		t.Error("GetTopProducts() missing data field")
+	}
+
+	if _, exists := response["count"]; !exists {
+		t.Error("GetTopProducts() missing count field")
+	}
+}
+
+func TestAnalyticsHandler_GetMonthlySales(t *testing.T) {
+	handler := createMockAnalyticsHandler()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/analytics/monthly-sales", nil)
+	recorder := httptest.NewRecorder()
+
+	handler.GetMonthlySales(recorder, req)
+
+	if recorder.Code != http.StatusOK {
+		t.Errorf("GetMonthlySales() status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+
+	var response map[string]interface{}
+	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
+		t.Fatalf("GetMonthlySales() response parsing error: %v", err)
+	}
+
+	if summary, exists := response["summary"]; !exists {
+		t.Error("GetMonthlySales() should return summary section")
+	} else if summaryMap, ok := summary.(map[string]interface{}); ok {
+		if cacheHit, exists := summaryMap["cache_hit"]; !exists || cacheHit != true {
+			t.Error("GetMonthlySales() cache_hit should be true")
+		}
 	}
 }

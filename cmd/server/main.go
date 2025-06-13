@@ -29,12 +29,10 @@ func main() {
 	// Initialize logger
 	log := logger.NewLogger(cfg.Logger.Level)
 	log.Info("Starting analytics dashboard server", "version", "1.0.0")
-
 	// Initialize services
-	csvProcessor := services.NewCSVProcessor(log)
+	csvProcessor := services.NewCSVProcessor(log, &cfg.CSV, &cfg.Cache)
 	analyticsService := services.NewAnalyticsService(log)
-	cacheService := services.NewCacheService(log)
-
+	cacheService := services.NewCacheService(log, &cfg.Cache)
 	// Initialize handlers
 	analyticsHandler := handlers.NewAnalyticsHandler(
 		analyticsService,
@@ -70,6 +68,7 @@ func main() {
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	// Block until we receive our signal or server error
+
 	select {
 	case err := <-serverErrors:
 		log.Error("Server failed to start", "error", err)
@@ -79,6 +78,7 @@ func main() {
 		log.Info("Server shutdown initiated", "signal", sig.String())
 
 		// Give outstanding requests 30 seconds to complete
+
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 

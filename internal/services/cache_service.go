@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"analytics-dashboard-api/internal/config"
 	"analytics-dashboard-api/internal/models"
 	"analytics-dashboard-api/pkg/logger"
 )
@@ -19,14 +20,13 @@ type CacheService struct {
 	cacheTTL  time.Duration
 }
 
-func NewCacheService(logger logger.Logger) *CacheService {
+func NewCacheService(logger logger.Logger, cacheConfig *config.CacheConfig) *CacheService {
 	return &CacheService{
 		logger:   logger,
-		cacheTTL: 24 * time.Hour, // Cache for 24 hours
+		cacheTTL: cacheConfig.TTL,
 	}
 }
 
-// LoadFromCache loads analytics data from cache if valid
 func (c *CacheService) LoadFromCache() (*models.AnalyticsResponse, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -35,13 +35,11 @@ func (c *CacheService) LoadFromCache() (*models.AnalyticsResponse, bool) {
 		return nil, false
 	}
 
-	// Mark as cache hit
 	result := *c.cacheData
 	result.CacheHit = true
 	return &result, true
 }
 
-// SaveToMemory saves analytics data to memory cache
 func (c *CacheService) SaveToMemory(data *models.AnalyticsResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -50,7 +48,6 @@ func (c *CacheService) SaveToMemory(data *models.AnalyticsResponse) {
 	c.cacheTime = time.Now()
 }
 
-// SaveToFile saves analytics data to file cache
 func (c *CacheService) SaveToFile(filePath string, data *models.AnalyticsResponse) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
@@ -65,7 +62,6 @@ func (c *CacheService) SaveToFile(filePath string, data *models.AnalyticsRespons
 	return nil
 }
 
-// LoadFromFile loads analytics data from file cache
 func (c *CacheService) LoadFromFile(filePath string) (*models.AnalyticsResponse, error) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return nil, fmt.Errorf("cache file does not exist: %s", filePath)
@@ -81,7 +77,6 @@ func (c *CacheService) LoadFromFile(filePath string) (*models.AnalyticsResponse,
 		return nil, fmt.Errorf("failed to unmarshal cache data: %w", err)
 	}
 
-	// Save to memory cache
 	c.SaveToMemory(&analytics)
 
 	c.logger.Info("Cache loaded from file", "path", filePath, "records", analytics.TotalRecords)

@@ -10,14 +10,6 @@ import (
 	"analytics-dashboard-api/internal/handlers"
 )
 
-// Mock logger for testing
-type mockLogger struct{}
-
-func (m *mockLogger) Info(msg string, args ...interface{})  {}
-func (m *mockLogger) Error(msg string, args ...interface{}) {}
-func (m *mockLogger) Debug(msg string, args ...interface{}) {}
-func (m *mockLogger) Warn(msg string, args ...interface{})  {}
-
 func TestHealthHandler_Health(t *testing.T) {
 	logger := &mockLogger{}
 	handler := handlers.NewHealthHandler(logger)
