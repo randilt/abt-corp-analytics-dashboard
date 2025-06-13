@@ -2,6 +2,8 @@
 
 High-performance analytics dashboard for ABT Corporation's transaction data. Built with Go backend and React frontend.
 
+Author: [Randil Tharusha](https://randiltharusha.me)
+
 ## Features
 
 - Country-level revenue analysis with transaction counts
@@ -28,7 +30,7 @@ High-performance analytics dashboard for ABT Corporation's transaction data. Bui
 
 ## Dataset Setup
 
-The transaction dataset is not included in the repository due to its large size (500+ MB). You'll need to:
+The transaction dataset provided is not included in the repository due to its large size (500+ MB). You'll need to:
 
 1. Create a data directory:
 
@@ -36,11 +38,31 @@ The transaction dataset is not included in the repository due to its large size 
 mkdir -p data/raw
 ```
 
-2. Place your transaction dataset in `data/raw/transactions.csv`
+2. Place the transactions dataset in `data/raw/transactions.csv`
 
-Note: The dataset is large (500+ MB) and contains millions of transaction records. Make sure you have enough disk space and memory to process it.
+Note: The provided dataset is large (500+ MB) and contains millions of transaction records. Make sure you have enough disk space and memory to process it.
 
 ## Setup
+
+### Quick Start Script
+
+Use `start.sh` script that automates the setup and startup process:
+
+```bash
+# Make the script executable
+chmod +x start.sh
+
+# Run the script
+./start.sh
+```
+
+The script will:
+
+1. Install backend dependencies
+2. Build the backend
+3. Install frontend dependencies
+4. Build the frontend
+5. Start both services
 
 ### Manual Setup
 
@@ -73,26 +95,6 @@ npm run build
 npm run preview
 ```
 
-### Quick Start Script
-
-We provide a `start.sh` script that automates the setup and startup process:
-
-```bash
-# Make the script executable
-chmod +x start.sh
-
-# Run the script
-./start.sh
-```
-
-The script will:
-
-1. Install backend dependencies
-2. Build the backend
-3. Install frontend dependencies
-4. Build the frontend
-5. Start both services
-
 ### Docker Setup
 
 Pull from dockerhub:
@@ -109,7 +111,7 @@ docker-compose up -d
 
 ## Accessing the Dashboard
 
-- Frontend: http://localhost:8080
+- Frontend: http://localhost:4173
 - Backend API: http://localhost:8080/api/v1
 
 ## Data Processing
@@ -152,18 +154,12 @@ Current coverage: 85% (core business logic)
 
 ## Troubleshooting
 
-1. If you see "ERR_TOO_MANY_REDIRECTS":
-
-   - Clear your browser cookies
-   - Ensure both frontend and backend are running
-   - Check that ports 8080 and 3000 are available
-
-2. If data isn't loading:
+1. If data isn't loading:
 
    - Check if the backend is running (`curl http://localhost:8080/health`)
    - Verify the CSV file exists in `data/raw/transactions.csv`
    - Try refreshing the cache using the refresh endpoint
 
-3. If the frontend build fails:
+2. If the frontend build fails:
    - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
    - Ensure you're using Node.js 18 or later

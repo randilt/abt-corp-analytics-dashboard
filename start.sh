@@ -92,7 +92,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 print_status "Services started successfully!"
-print_status "Frontend: http://localhost:8080"
+print_status "Frontend: http://localhost:4173"
 print_status "Backend API: http://localhost:8080/api/v1"
 print_status "Press Ctrl+C to stop all services"
 
