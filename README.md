@@ -30,17 +30,23 @@ Author: [Randil Tharusha](https://randiltharusha.me)
 
 ## Dataset Setup
 
-The transaction dataset provided is not included in the repository due to its large size (500+ MB). You'll need to:
+The repository includes dummy data files for reference:
 
-1. Create a data directory:
+- `data/raw/transactions.csv` (100 rows - 99 records + 1 header)
+- `data/processed/cache.json` (cached analytics for the dummy data)
+
+These files are for reference only. Before running the application:
+
+1. Remove the dummy files:
 
 ```bash
-mkdir -p data/raw
+rm data/raw/transactions.csv
+rm data/processed/cache.json
 ```
 
-2. Place the transactions dataset in `data/raw/transactions.csv`
+2. Place your full transaction dataset in `data/raw/transactions.csv`
 
-Note: The provided dataset is large (500+ MB) and contains millions of transaction records. Make sure you have enough disk space and memory to process it.
+Note: The full dataset is large (500+ MB) and contains millions of transaction records. Make sure you have enough disk space and memory to process it.
 
 ## Setup
 
