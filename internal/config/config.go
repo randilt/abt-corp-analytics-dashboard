@@ -63,14 +63,15 @@ func LoadConfig() (*Config, error) {
 		},
 	}
 
-	if err := config.validate(); err != nil {
+	if err := config.Validate(); err != nil {
 		return nil, fmt.Errorf("config validation failed: %w", err)
 	}
 
 	return config, nil
 }
 
-func (c *Config) validate() error {
+// Validate validates the configuration
+func (c *Config) Validate() error {
 	if c.Server.Port <= 0 || c.Server.Port > 65535 {
 		return fmt.Errorf("invalid server port: %d", c.Server.Port)
 	}

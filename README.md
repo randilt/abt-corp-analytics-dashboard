@@ -195,11 +195,23 @@ CSV_BATCH_SIZE=5000 CSV_WORKER_POOL=4 ./bin/server
 ## Testing
 
 ```bash
-make test        # Run tests
-make coverage    # Generate coverage report
+# Run all tests
+make test
+
+# Generate coverage report
+make test-coverage
+
+# Generate detailed coverage report
+make test-coverage-detailed
 ```
 
-Current coverage: 85% (core business logic)
+The coverage report will be generated in `./coverage/coverage.html`. Open this file in your browser to view:
+
+- Line-by-line coverage
+- Function coverage
+- Overall coverage statistics
+
+Note: Coverage report is generated even if some tests fail.
 
 ## Troubleshooting
 

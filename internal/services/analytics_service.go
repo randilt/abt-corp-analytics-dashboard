@@ -57,8 +57,10 @@ func (s *AnalyticsService) GenerateAnalytics(transactions []models.Transaction) 
 		topRegions = s.generateTopRegions(transactions)
 	}()
 
+	// Wait for all goroutines to complete
 	wg.Wait()
 
+	// Calculate processing time after all goroutines complete
 	processingTime := time.Since(startTime)
 	s.logger.Info("Analytics generation completed", "duration", processingTime)
 

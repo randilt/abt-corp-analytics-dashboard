@@ -44,20 +44,10 @@ test-integration:
 test-coverage:
 	@echo "Generating test coverage report..."
 	@mkdir -p $(TEST_COVERAGE_DIR)
-	go test -v -race -coverprofile=$(TEST_COVERAGE_DIR)/coverage.out ./...
-	go tool cover -html=$(TEST_COVERAGE_DIR)/coverage.out -o $(TEST_COVERAGE_DIR)/coverage.html
-	go tool cover -func=$(TEST_COVERAGE_DIR)/coverage.out
+	@go test -v -race -coverprofile=$(TEST_COVERAGE_DIR)/coverage.out -covermode=atomic -coverpkg=./internal/...,./pkg/... ./tests/unit/... || true
+	@go tool cover -html=$(TEST_COVERAGE_DIR)/coverage.out -o $(TEST_COVERAGE_DIR)/coverage.html
 	@echo "Coverage report generated: $(TEST_COVERAGE_DIR)/coverage.html"
 
-# Run benchmarks
-benchmark:
-	@echo "Running benchmarks..."
-	go test -bench=. -benchmem ./...
-
-# Preprocess data (run the preprocessing script)
-preprocess:
-	@echo "Preprocessing CSV data..."
-	go run ./scripts/preprocess.go -csv ./data/raw/transactions.csv -cache ./data/processed/analytics_cache.json
 
 # Load test (requires hey: go install github.com/rakyll/hey@latest)
 load-test:
@@ -101,7 +91,7 @@ deps:
 # Build Docker image
 docker:
 	@echo "Building Docker image..."
-	docker build -t analytics-dashboard:latest -f deployments/docker/Dockerfile .
+	docker build -t analytics-dashboard:latest -f Dockerfile .
 
 # Run with Docker
 docker-run:

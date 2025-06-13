@@ -12,19 +12,35 @@ import (
 	"analytics-dashboard-api/pkg/logger"
 )
 
+type AnalyticsService interface {
+	GenerateAnalytics([]models.Transaction) *models.AnalyticsResponse
+}
+
+type CacheService interface {
+	LoadFromCache() (*models.AnalyticsResponse, bool)
+	LoadFromFile(string) (*models.AnalyticsResponse, error)
+	SaveToMemory(*models.AnalyticsResponse)
+	SaveToFile(string, *models.AnalyticsResponse) error
+}
+
+type CSVProcessor interface {
+	ProcessLargeCSV(context.Context, string) (*services.ProcessingResult, error)
+	PreprocessAndCache(context.Context, string, string) (*models.ProcessingStats, error)
+}
+
 type AnalyticsHandler struct {
-	analyticsService *services.AnalyticsService
-	cacheService     *services.CacheService
-	csvProcessor     *services.CSVProcessor
+	analyticsService AnalyticsService
+	cacheService     CacheService
+	csvProcessor     CSVProcessor
 	logger           logger.Logger
 	csvPath          string
 	cachePath        string
 }
 
 func NewAnalyticsHandler(
-	analyticsService *services.AnalyticsService,
-	cacheService *services.CacheService,
-	csvProcessor *services.CSVProcessor,
+	analyticsService AnalyticsService,
+	cacheService CacheService,
+	csvProcessor CSVProcessor,
 	logger logger.Logger,
 	csvPath, cachePath string,
 ) *AnalyticsHandler {
