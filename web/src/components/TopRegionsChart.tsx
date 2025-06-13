@@ -17,7 +17,6 @@ interface TopRegionsChartProps {
 
 export function TopRegionsChart({ data }: TopRegionsChartProps) {
   const chartData = data.slice(0, 30).map((item) => ({
-    // Show top 20 for readability
     region:
       item.region.length > 15
         ? item.region.substring(0, 15) + "..."
