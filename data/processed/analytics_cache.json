@@ -1,0 +1,1032 @@
+{
+  "country_revenue": [
+    {
+      "country": "USA",
+      "product_name": "Product_926298",
+      "total_revenue": 1974.56,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_861849",
+      "total_revenue": 1874.88,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_824944",
+      "total_revenue": 1790.96,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_470715",
+      "total_revenue": 1679.92,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_944209",
+      "total_revenue": 1477,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_233470",
+      "total_revenue": 1458.69,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_307694",
+      "total_revenue": 1357.98,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_928914",
+      "total_revenue": 1351.8,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_248384",
+      "total_revenue": 1344.39,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_1786",
+      "total_revenue": 1286.07,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_712002",
+      "total_revenue": 1266.04,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_458831",
+      "total_revenue": 1261.76,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_147779",
+      "total_revenue": 1247.94,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_227190",
+      "total_revenue": 1242.76,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_775416",
+      "total_revenue": 1189.17,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_816688",
+      "total_revenue": 1136.24,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_149013",
+      "total_revenue": 1011.18,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_32755",
+      "total_revenue": 973,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_193104",
+      "total_revenue": 971.88,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_342333",
+      "total_revenue": 957.32,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_752329",
+      "total_revenue": 955.6,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_239405",
+      "total_revenue": 949.59,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_672483",
+      "total_revenue": 935.97,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_289651",
+      "total_revenue": 911.82,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_274856",
+      "total_revenue": 910.38,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_287155",
+      "total_revenue": 887.16,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_903234",
+      "total_revenue": 887.16,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_565399",
+      "total_revenue": 879.39,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_230370",
+      "total_revenue": 830.7,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_20806",
+      "total_revenue": 809.4,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_874024",
+      "total_revenue": 790.44,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_535219",
+      "total_revenue": 785,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_457094",
+      "total_revenue": 762.96,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_407476",
+      "total_revenue": 762.74,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_54923",
+      "total_revenue": 743.6,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_765433",
+      "total_revenue": 740.64,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_613916",
+      "total_revenue": 738.36,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_909823",
+      "total_revenue": 720.88,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_399820",
+      "total_revenue": 661.5,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_703466",
+      "total_revenue": 648.26,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_6861",
+      "total_revenue": 644.74,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_737867",
+      "total_revenue": 642.02,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_585149",
+      "total_revenue": 633.94,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_416745",
+      "total_revenue": 627.18,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_299013",
+      "total_revenue": 609.78,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_943727",
+      "total_revenue": 609.04,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_933187",
+      "total_revenue": 596.43,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_88307",
+      "total_revenue": 577.52,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_483556",
+      "total_revenue": 555.08,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_706006",
+      "total_revenue": 546.34,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_767369",
+      "total_revenue": 540.02,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_521165",
+      "total_revenue": 534.36,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_834632",
+      "total_revenue": 506,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_928719",
+      "total_revenue": 503.69,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_860364",
+      "total_revenue": 495.03,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_760240",
+      "total_revenue": 460.03,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_645146",
+      "total_revenue": 457.99,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_534064",
+      "total_revenue": 444.13,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_356703",
+      "total_revenue": 443.55,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_565370",
+      "total_revenue": 429.36,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_162738",
+      "total_revenue": 423.6,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_615515",
+      "total_revenue": 412.99,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_868875",
+      "total_revenue": 373.86,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_40816",
+      "total_revenue": 373.41,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_497199",
+      "total_revenue": 364.14,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_221541",
+      "total_revenue": 354.84,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_351443",
+      "total_revenue": 354,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_923660",
+      "total_revenue": 352.54,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_939323",
+      "total_revenue": 347,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_986419",
+      "total_revenue": 337.26,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_456127",
+      "total_revenue": 330.27,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_740316",
+      "total_revenue": 321.69,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_322378",
+      "total_revenue": 313.62,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_686455",
+      "total_revenue": 308.81,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_312827",
+      "total_revenue": 300.88,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_345629",
+      "total_revenue": 275.18,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_694127",
+      "total_revenue": 274.9,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_239780",
+      "total_revenue": 270.02,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_123121",
+      "total_revenue": 262.2,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_528279",
+      "total_revenue": 247.74,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_968222",
+      "total_revenue": 246.16,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_557792",
+      "total_revenue": 244.14,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_240310",
+      "total_revenue": 230.37,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_393747",
+      "total_revenue": 218.96,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_721429",
+      "total_revenue": 214.79,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_249234",
+      "total_revenue": 206.38,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_67260",
+      "total_revenue": 189.54,
+      "transaction_count": 1
+    },
+    {
+      "country": "Canada",
+      "product_name": "Product_566687",
+      "total_revenue": 177.38,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_54721",
+      "total_revenue": 172,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_765251",
+      "total_revenue": 157.92,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_51297",
+      "total_revenue": 136.59,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_395745",
+      "total_revenue": 103.11,
+      "transaction_count": 1
+    },
+    {
+      "country": "Australia",
+      "product_name": "Product_468678",
+      "total_revenue": 98.9,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_759582",
+      "total_revenue": 87.3,
+      "transaction_count": 1
+    },
+    {
+      "country": "UK",
+      "product_name": "Product_431016",
+      "total_revenue": 54.9,
+      "transaction_count": 1
+    },
+    {
+      "country": "India",
+      "product_name": "Product_206253",
+      "total_revenue": 49.86,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_420139",
+      "total_revenue": 47.48,
+      "transaction_count": 1
+    },
+    {
+      "country": "Germany",
+      "product_name": "Product_411601",
+      "total_revenue": 41.14,
+      "transaction_count": 1
+    },
+    {
+      "country": "USA",
+      "product_name": "Product_68829",
+      "total_revenue": 15.64,
+      "transaction_count": 1
+    }
+  ],
+  "top_products": [
+    {
+      "product_id": "P1944209",
+      "product_name": "Product_944209",
+      "purchase_count": 4,
+      "current_stock": 349
+    },
+    {
+      "product_id": "P1926298",
+      "product_name": "Product_926298",
+      "purchase_count": 4,
+      "current_stock": 714
+    },
+    {
+      "product_id": "P1928914",
+      "product_name": "Product_928914",
+      "purchase_count": 4,
+      "current_stock": 837
+    },
+    {
+      "product_id": "P1861849",
+      "product_name": "Product_861849",
+      "purchase_count": 4,
+      "current_stock": 231
+    },
+    {
+      "product_id": "P1816688",
+      "product_name": "Product_816688",
+      "purchase_count": 4,
+      "current_stock": 327
+    },
+    {
+      "product_id": "P1824944",
+      "product_name": "Product_824944",
+      "purchase_count": 4,
+      "current_stock": 809
+    },
+    {
+      "product_id": "P1712002",
+      "product_name": "Product_712002",
+      "purchase_count": 4,
+      "current_stock": 903
+    },
+    {
+      "product_id": "P1054923",
+      "product_name": "Product_54923",
+      "purchase_count": 4,
+      "current_stock": 980
+    },
+    {
+      "product_id": "P1458831",
+      "product_name": "Product_458831",
+      "purchase_count": 4,
+      "current_stock": 434
+    },
+    {
+      "product_id": "P1470715",
+      "product_name": "Product_470715",
+      "purchase_count": 4,
+      "current_stock": 753
+    },
+    {
+      "product_id": "P1613916",
+      "product_name": "Product_613916",
+      "purchase_count": 4,
+      "current_stock": 359
+    },
+    {
+      "product_id": "P1909823",
+      "product_name": "Product_909823",
+      "purchase_count": 4,
+      "current_stock": 273
+    },
+    {
+      "product_id": "P1535219",
+      "product_name": "Product_535219",
+      "purchase_count": 4,
+      "current_stock": 588
+    },
+    {
+      "product_id": "P1874024",
+      "product_name": "Product_874024",
+      "purchase_count": 4,
+      "current_stock": 127
+    },
+    {
+      "product_id": "P1521165",
+      "product_name": "Product_521165",
+      "purchase_count": 4,
+      "current_stock": 231
+    },
+    {
+      "product_id": "P1227190",
+      "product_name": "Product_227190",
+      "purchase_count": 4,
+      "current_stock": 243
+    },
+    {
+      "product_id": "P1765433",
+      "product_name": "Product_765433",
+      "purchase_count": 3,
+      "current_stock": 420
+    },
+    {
+      "product_id": "P1497199",
+      "product_name": "Product_497199",
+      "purchase_count": 3,
+      "current_stock": 605
+    },
+    {
+      "product_id": "P1565399",
+      "product_name": "Product_565399",
+      "purchase_count": 3,
+      "current_stock": 859
+    },
+    {
+      "product_id": "P1431016",
+      "product_name": "Product_431016",
+      "purchase_count": 3,
+      "current_stock": 23
+    }
+  ],
+  "monthly_sales": [
+    {
+      "month": "2021-01",
+      "sales_volume": 785,
+      "item_count": 4
+    },
+    {
+      "month": "2021-02",
+      "sales_volume": 54.9,
+      "item_count": 3
+    },
+    {
+      "month": "2021-03",
+      "sales_volume": 4518.57,
+      "item_count": 12
+    },
+    {
+      "month": "2021-04",
+      "sales_volume": 1477.88,
+      "item_count": 3
+    },
+    {
+      "month": "2021-06",
+      "sales_volume": 1072.96,
+      "item_count": 6
+    },
+    {
+      "month": "2021-07",
+      "sales_volume": 1803.5499999999997,
+      "item_count": 9
+    },
+    {
+      "month": "2021-08",
+      "sales_volume": 3022.86,
+      "item_count": 10
+    },
+    {
+      "month": "2021-09",
+      "sales_volume": 1078,
+      "item_count": 9
+    },
+    {
+      "month": "2021-10",
+      "sales_volume": 2175.12,
+      "item_count": 7
+    },
+    {
+      "month": "2021-11",
+      "sales_volume": 1836.71,
+      "item_count": 9
+    },
+    {
+      "month": "2021-12",
+      "sales_volume": 4676.139999999999,
+      "item_count": 17
+    },
+    {
+      "month": "2022-01",
+      "sales_volume": 1536.17,
+      "item_count": 5
+    },
+    {
+      "month": "2022-02",
+      "sales_volume": 1367.44,
+      "item_count": 6
+    },
+    {
+      "month": "2022-03",
+      "sales_volume": 614.74,
+      "item_count": 2
+    },
+    {
+      "month": "2022-06",
+      "sales_volume": 949.59,
+      "item_count": 3
+    },
+    {
+      "month": "2022-07",
+      "sales_volume": 1286.07,
+      "item_count": 3
+    },
+    {
+      "month": "2022-08",
+      "sales_volume": 2587.98,
+      "item_count": 8
+    },
+    {
+      "month": "2022-09",
+      "sales_volume": 930.18,
+      "item_count": 6
+    },
+    {
+      "month": "2022-10",
+      "sales_volume": 627.18,
+      "item_count": 3
+    },
+    {
+      "month": "2022-11",
+      "sales_volume": 2706.31,
+      "item_count": 8
+    },
+    {
+      "month": "2022-12",
+      "sales_volume": 955.6,
+      "item_count": 2
+    },
+    {
+      "month": "2023-01",
+      "sales_volume": 150.59,
+      "item_count": 4
+    },
+    {
+      "month": "2023-02",
+      "sales_volume": 528.26,
+      "item_count": 4
+    },
+    {
+      "month": "2023-03",
+      "sales_volume": 2963.18,
+      "item_count": 8
+    },
+    {
+      "month": "2023-04",
+      "sales_volume": 2678.12,
+      "item_count": 7
+    },
+    {
+      "month": "2023-05",
+      "sales_volume": 2188.5,
+      "item_count": 5
+    },
+    {
+      "month": "2023-06",
+      "sales_volume": 2701.66,
+      "item_count": 11
+    },
+    {
+      "month": "2023-07",
+      "sales_volume": 2929.21,
+      "item_count": 9
+    },
+    {
+      "month": "2023-08",
+      "sales_volume": 270.02,
+      "item_count": 1
+    },
+    {
+      "month": "2023-09",
+      "sales_volume": 2417.08,
+      "item_count": 8
+    },
+    {
+      "month": "2023-10",
+      "sales_volume": 2894.16,
+      "item_count": 12
+    },
+    {
+      "month": "2023-11",
+      "sales_volume": 2402.48,
+      "item_count": 10
+    },
+    {
+      "month": "2023-12",
+      "sales_volume": 3516.5600000000004,
+      "item_count": 13
+    },
+    {
+      "month": "2024-01",
+      "sales_volume": 1015.11,
+      "item_count": 3
+    },
+    {
+      "month": "2024-02",
+      "sales_volume": 330.27,
+      "item_count": 1
+    },
+    {
+      "month": "2024-03",
+      "sales_volume": 264.68,
+      "item_count": 5
+    }
+  ],
+  "top_regions": [
+    {
+      "region": "Bavaria",
+      "total_revenue": 8341.57,
+      "items_sold": 23
+    },
+    {
+      "region": "Quebec",
+      "total_revenue": 4672.06,
+      "items_sold": 14
+    },
+    {
+      "region": "Illinois",
+      "total_revenue": 4460.09,
+      "items_sold": 17
+    },
+    {
+      "region": "Tamil Nadu",
+      "total_revenue": 4139.610000000001,
+      "items_sold": 16
+    },
+    {
+      "region": "Queensland",
+      "total_revenue": 4057.3900000000003,
+      "items_sold": 12
+    },
+    {
+      "region": "California",
+      "total_revenue": 3915.8,
+      "items_sold": 11
+    },
+    {
+      "region": "Texas",
+      "total_revenue": 3412.98,
+      "items_sold": 9
+    },
+    {
+      "region": "Alberta",
+      "total_revenue": 3107.2799999999997,
+      "items_sold": 9
+    },
+    {
+      "region": "Western Australia",
+      "total_revenue": 2982.2,
+      "items_sold": 11
+    },
+    {
+      "region": "Hesse",
+      "total_revenue": 2791.55,
+      "items_sold": 14
+    },
+    {
+      "region": "British Columbia",
+      "total_revenue": 2517.65,
+      "items_sold": 12
+    },
+    {
+      "region": "New York",
+      "total_revenue": 2217.2799999999997,
+      "items_sold": 10
+    },
+    {
+      "region": "Saxony",
+      "total_revenue": 2209.84,
+      "items_sold": 9
+    },
+    {
+      "region": "Karnataka",
+      "total_revenue": 1961.9699999999998,
+      "items_sold": 10
+    },
+    {
+      "region": "England",
+      "total_revenue": 1918.72,
+      "items_sold": 4
+    },
+    {
+      "region": "Maharashtra",
+      "total_revenue": 1788.8700000000001,
+      "items_sold": 7
+    },
+    {
+      "region": "Victoria",
+      "total_revenue": 1701.56,
+      "items_sold": 11
+    },
+    {
+      "region": "Florida",
+      "total_revenue": 1541.8400000000001,
+      "items_sold": 8
+    },
+    {
+      "region": "Ontario",
+      "total_revenue": 1329.7,
+      "items_sold": 6
+    },
+    {
+      "region": "Delhi",
+      "total_revenue": 961.6800000000001,
+      "items_sold": 4
+    },
+    {
+      "region": "Northern Ireland",
+      "total_revenue": 939.4100000000001,
+      "items_sold": 6
+    },
+    {
+      "region": "New South Wales",
+      "total_revenue": 883.9,
+      "items_sold": 6
+    },
+    {
+      "region": "Berlin",
+      "total_revenue": 762.96,
+      "items_sold": 2
+    },
+    {
+      "region": "Scotland",
+      "total_revenue": 642.02,
+      "items_sold": 2
+    },
+    {
+      "region": "Wales",
+      "total_revenue": 54.9,
+      "items_sold": 3
+    }
+  ],
+  "processing_time_ms": 0,
+  "total_records": 99,
+  "cache_hit": false
+}
