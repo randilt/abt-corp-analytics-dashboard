@@ -3,8 +3,8 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
+	"runtime"
 	"sync"
 	"time"
 
@@ -18,12 +18,14 @@ type CacheService struct {
 	mu        sync.RWMutex
 	cacheTime time.Time
 	cacheTTL  time.Duration
+	maxMemory int64
 }
 
 func NewCacheService(logger logger.Logger) *CacheService {
 	return &CacheService{
-		logger:   logger,
-		cacheTTL: 24 * time.Hour, // Cache for 24 hours
+		logger:    logger,
+		cacheTTL:  1 * time.Hour,
+		maxMemory: 500 * 1024 * 1024, // 500MB limit
 	}
 }
 
@@ -33,6 +35,17 @@ func (c *CacheService) LoadFromCache() (*models.AnalyticsResponse, bool) {
 	defer c.mu.RUnlock()
 
 	if c.cacheData == nil || time.Since(c.cacheTime) > c.cacheTTL {
+		return nil, false
+	}
+
+	// Check memory usage
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+	if memStats.Alloc > uint64(c.maxMemory) {
+		c.logger.Warn("Memory limit exceeded, clearing cache", 
+			"allocated", memStats.Alloc,
+			"limit", c.maxMemory)
+		c.cacheData = nil
 		return nil, false
 	}
 
@@ -47,6 +60,16 @@ func (c *CacheService) SaveToMemory(data *models.AnalyticsResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	// Check memory usage before saving
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+	if memStats.Alloc > uint64(c.maxMemory) {
+		c.logger.Warn("Memory limit exceeded, skipping memory cache", 
+			"allocated", memStats.Alloc,
+			"limit", c.maxMemory)
+		return
+	}
+
 	c.cacheData = data
 	c.cacheTime = time.Now()
 }
@@ -58,7 +81,7 @@ func (c *CacheService) SaveToFile(filePath string, data *models.AnalyticsRespons
 		return fmt.Errorf("failed to marshal cache data: %w", err)
 	}
 
-	if err := ioutil.WriteFile(filePath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(filePath, jsonData, 0644); err != nil {
 		return fmt.Errorf("failed to write cache file: %w", err)
 	}
 
@@ -72,7 +95,7 @@ func (c *CacheService) LoadFromFile(filePath string) (*models.AnalyticsResponse,
 		return nil, fmt.Errorf("cache file does not exist: %s", filePath)
 	}
 
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read cache file: %w", err)
 	}
