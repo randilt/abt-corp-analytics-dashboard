@@ -272,6 +272,12 @@ func (h *AnalyticsHandler) createAnalyticsSummary(analytics *models.AnalyticsRes
 		topRegions = topRegions[:30]
 	}
 
+	// Calculate total revenue from monthly sales
+	var totalRevenue float64
+	for _, sale := range analytics.MonthlySales {
+		totalRevenue += sale.SalesVolume
+	}
+
 	return map[string]interface{}{
 		"summary": map[string]interface{}{
 			"total_records":              analytics.TotalRecords,
@@ -281,6 +287,7 @@ func (h *AnalyticsHandler) createAnalyticsSummary(analytics *models.AnalyticsRes
 			"top_products_count":         len(analytics.TopProducts),
 			"monthly_sales_count":        len(analytics.MonthlySales),
 			"top_regions_count":          len(analytics.TopRegions),
+			"total_revenue":              totalRevenue,
 		},
 		"country_revenue":  countryRevenue,
 		"top_products":     topProducts,
