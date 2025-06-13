@@ -73,7 +73,7 @@ func (h *AnalyticsHandler) GetAnalytics(w http.ResponseWriter, r *http.Request) 
 	}
 
 	analytics := h.analyticsService.GenerateAnalytics(result.Transactions)
-	
+
 	// Cache the results
 	h.cacheService.SaveToMemory(analytics)
 	go func() {
@@ -82,8 +82,8 @@ func (h *AnalyticsHandler) GetAnalytics(w http.ResponseWriter, r *http.Request) 
 		}
 	}()
 
-	h.logger.Info("Analytics generated successfully", 
-		"records", len(result.Transactions), 
+	h.logger.Info("Analytics generated successfully",
+		"records", len(result.Transactions),
 		"duration", time.Since(startTime))
 
 	// Return summary version
@@ -96,7 +96,7 @@ func (h *AnalyticsHandler) GetCountryRevenue(w http.ResponseWriter, r *http.Requ
 	// Parse query parameters
 	limit := h.getIntQueryParam(r, "limit", 100) // Default 100, max 1000
 	offset := h.getIntQueryParam(r, "offset", 0)
-	
+
 	if limit > 1000 {
 		limit = 1000 // Cap at 1000 records
 	}
@@ -111,7 +111,7 @@ func (h *AnalyticsHandler) GetCountryRevenue(w http.ResponseWriter, r *http.Requ
 	total := len(analytics.CountryRevenue)
 	start := offset
 	end := offset + limit
-	
+
 	if start >= total {
 		start = total
 		end = total
@@ -122,11 +122,11 @@ func (h *AnalyticsHandler) GetCountryRevenue(w http.ResponseWriter, r *http.Requ
 	paginatedData := analytics.CountryRevenue[start:end]
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data":   paginatedData,
-		"count":  len(paginatedData),
-		"total":  total,
-		"limit":  limit,
-		"offset": offset,
+		"data":     paginatedData,
+		"count":    len(paginatedData),
+		"total":    total,
+		"limit":    limit,
+		"offset":   offset,
 		"has_more": end < total,
 	})
 }
@@ -142,7 +142,7 @@ func (h *AnalyticsHandler) GetAnalyticsStats(w http.ResponseWriter, r *http.Requ
 	stats := map[string]interface{}{
 		"total_records":         analytics.TotalRecords,
 		"processing_time_ms":    analytics.ProcessingTimeMs,
-		"cache_hit":            analytics.CacheHit,
+		"cache_hit":             analytics.CacheHit,
 		"country_revenue_count": len(analytics.CountryRevenue),
 		"top_products_count":    len(analytics.TopProducts),
 		"monthly_sales_count":   len(analytics.MonthlySales),
@@ -158,7 +158,6 @@ func (h *AnalyticsHandler) GetAnalyticsStats(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSONResponse(w, http.StatusOK, stats)
 }
 
-
 // GetTopProducts returns top 20 frequently purchased products
 func (h *AnalyticsHandler) GetTopProducts(w http.ResponseWriter, r *http.Request) {
 	analytics, err := h.getAnalyticsData(r.Context())
@@ -168,7 +167,7 @@ func (h *AnalyticsHandler) GetTopProducts(w http.ResponseWriter, r *http.Request
 	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data": analytics.TopProducts,
+		"data":  analytics.TopProducts,
 		"count": len(analytics.TopProducts),
 	})
 }
@@ -182,7 +181,7 @@ func (h *AnalyticsHandler) GetMonthlySales(w http.ResponseWriter, r *http.Reques
 	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data": analytics.MonthlySales,
+		"data":  analytics.MonthlySales,
 		"count": len(analytics.MonthlySales),
 	})
 }
@@ -196,7 +195,7 @@ func (h *AnalyticsHandler) GetTopRegions(w http.ResponseWriter, r *http.Request)
 	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data": analytics.TopRegions,
+		"data":  analytics.TopRegions,
 		"count": len(analytics.TopRegions),
 	})
 }
@@ -225,8 +224,8 @@ func (h *AnalyticsHandler) RefreshCache(w http.ResponseWriter, r *http.Request) 
 	h.logger.Info("Cache refreshed successfully", "duration", time.Since(startTime))
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"message": "Cache refreshed successfully",
-		"stats": stats,
+		"message":     "Cache refreshed successfully",
+		"stats":       stats,
 		"duration_ms": time.Since(startTime).Milliseconds(),
 	})
 }
@@ -280,20 +279,20 @@ func (h *AnalyticsHandler) createAnalyticsSummary(analytics *models.AnalyticsRes
 
 	return map[string]interface{}{
 		"summary": map[string]interface{}{
-			"total_records":              analytics.TotalRecords,
-			"processing_time_ms":         analytics.ProcessingTimeMs,
-			"cache_hit":                  analytics.CacheHit,
-			"country_revenue_count":      len(analytics.CountryRevenue),
-			"top_products_count":         len(analytics.TopProducts),
-			"monthly_sales_count":        len(analytics.MonthlySales),
-			"top_regions_count":          len(analytics.TopRegions),
-			"total_revenue":              totalRevenue,
+			"total_records":         analytics.TotalRecords,
+			"processing_time_ms":    analytics.ProcessingTimeMs,
+			"cache_hit":             analytics.CacheHit,
+			"country_revenue_count": len(analytics.CountryRevenue),
+			"top_products_count":    len(analytics.TopProducts),
+			"monthly_sales_count":   len(analytics.MonthlySales),
+			"top_regions_count":     len(analytics.TopRegions),
+			"total_revenue":         totalRevenue,
 		},
-		"country_revenue":  countryRevenue,
-		"top_products":     topProducts,
-		"monthly_sales":    analytics.MonthlySales,
-		"top_regions":      topRegions,
-		"message": "Use specific endpoints with pagination for complete data: /api/v1/analytics/country-revenue?limit=100&offset=0",
+		"country_revenue": countryRevenue,
+		"top_products":    topProducts,
+		"monthly_sales":   analytics.MonthlySales,
+		"top_regions":     topRegions,
+		"message":         "Use specific endpoints with pagination for complete data: /api/v1/analytics/country-revenue?limit=100&offset=0",
 	}
 }
 
@@ -306,4 +305,3 @@ func (h *AnalyticsHandler) getIntQueryParam(r *http.Request, key string, default
 	}
 	return defaultValue
 }
-

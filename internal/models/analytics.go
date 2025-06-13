@@ -11,10 +11,10 @@ var (
 
 // CountryRevenue represents revenue data by country and product
 type CountryRevenue struct {
-	Country         string  `json:"country"`
-	ProductName     string  `json:"product_name"`
-	TotalRevenue    float64 `json:"total_revenue"`
-	TransactionCount int    `json:"transaction_count"`
+	Country          string  `json:"country"`
+	ProductName      string  `json:"product_name"`
+	TotalRevenue     float64 `json:"total_revenue"`
+	TransactionCount int     `json:"transaction_count"`
 }
 
 // ProductFrequency represents frequently purchased products
@@ -41,20 +41,20 @@ type RegionRevenue struct {
 
 // AnalyticsResponse wraps all dashboard data
 type AnalyticsResponse struct {
-	CountryRevenue      []CountryRevenue   `json:"country_revenue"`
-	TopProducts         []ProductFrequency `json:"top_products"`
-	MonthlySales        []MonthlySales     `json:"monthly_sales"`
-	TopRegions          []RegionRevenue    `json:"top_regions"`
-	ProcessingTimeMs    int64              `json:"processing_time_ms"`
-	TotalRecords        int                `json:"total_records"`
-	CacheHit            bool               `json:"cache_hit"`
+	CountryRevenue   []CountryRevenue   `json:"country_revenue"`
+	TopProducts      []ProductFrequency `json:"top_products"`
+	MonthlySales     []MonthlySales     `json:"monthly_sales"`
+	TopRegions       []RegionRevenue    `json:"top_regions"`
+	ProcessingTimeMs int64              `json:"processing_time_ms"`
+	TotalRecords     int                `json:"total_records"`
+	CacheHit         bool               `json:"cache_hit"`
 }
 
 // ProcessingStats holds statistics about data processing
 type ProcessingStats struct {
-	TotalRecords    int           `json:"total_records"`
-	ProcessedRecords int          `json:"processed_records"`
-	ErrorCount      int           `json:"error_count"`
-	ProcessingTime  time.Duration `json:"processing_time"`
-	MemoryUsageMB   float64       `json:"memory_usage_mb"`
+	TotalRecords     int           `json:"total_records"`
+	ProcessedRecords int           `json:"processed_records"`
+	ErrorCount       int           `json:"error_count"`
+	ProcessingTime   time.Duration `json:"processing_time"`
+	MemoryUsageMB    float64       `json:"memory_usage_mb"`
 }

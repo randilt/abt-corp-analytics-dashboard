@@ -108,7 +108,7 @@ func setupRouter(
 
 	// API routes
 	api := router.PathPrefix("/api/v1").Subrouter()
-	
+
 	// Analytics endpoints
 	api.HandleFunc("/analytics", analyticsHandler.GetAnalytics).Methods("GET")
 	api.HandleFunc("/analytics/stats", analyticsHandler.GetAnalyticsStats).Methods("GET")

@@ -37,7 +37,7 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 	if t.TransactionID == "" {
 		return fmt.Errorf("empty transaction_id")
 	}
-	
+
 	// Parse transaction date
 	if dateStr := strings.TrimSpace(row[1]); dateStr != "" {
 		if date, err := time.Parse("2006-01-02", dateStr); err == nil {
@@ -53,14 +53,14 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 			}
 		}
 	}
-	
+
 	t.UserID = strings.TrimSpace(row[2])
 	t.Country = strings.TrimSpace(row[3])
 	t.Region = strings.TrimSpace(row[4])
 	t.ProductID = strings.TrimSpace(row[5])
 	t.ProductName = strings.TrimSpace(row[6])
 	t.Category = strings.TrimSpace(row[7])
-	
+
 	// Parse numeric fields with validation
 	if priceStr := strings.TrimSpace(row[8]); priceStr != "" {
 		if price, err := strconv.ParseFloat(priceStr, 64); err == nil && price >= 0 {
@@ -69,7 +69,7 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 			return fmt.Errorf("invalid price: %s", priceStr)
 		}
 	}
-	
+
 	if qtyStr := strings.TrimSpace(row[9]); qtyStr != "" {
 		if qty, err := strconv.Atoi(qtyStr); err == nil && qty > 0 {
 			t.Quantity = qty
@@ -77,7 +77,7 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 			return fmt.Errorf("invalid quantity: %s", qtyStr)
 		}
 	}
-	
+
 	if totalStr := strings.TrimSpace(row[10]); totalStr != "" {
 		if total, err := strconv.ParseFloat(totalStr, 64); err == nil && total >= 0 {
 			t.TotalPrice = total
@@ -85,7 +85,7 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 			return fmt.Errorf("invalid total_price: %s", totalStr)
 		}
 	}
-	
+
 	if stockStr := strings.TrimSpace(row[11]); stockStr != "" {
 		if stock, err := strconv.Atoi(stockStr); err == nil && stock >= 0 {
 			t.StockQuantity = stock
@@ -93,7 +93,7 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 			return fmt.Errorf("invalid stock_quantity: %s", stockStr)
 		}
 	}
-	
+
 	// Parse added date if exists
 	if len(row) > 12 {
 		if dateStr := strings.TrimSpace(row[12]); dateStr != "" {
@@ -105,7 +105,7 @@ func (t *Transaction) ParseCSVRow(row []string) error {
 			// If parsing fails, just leave AddedDate as zero value
 		}
 	}
-	
+
 	return nil
 }
 

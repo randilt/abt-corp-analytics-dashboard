@@ -104,28 +104,28 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 	// Collect all batch results
 	for result := range resultChan {
 		if result.Error != nil {
-			p.logger.Error("Batch processing error", 
-				"batch", result.BatchIndex, 
+			p.logger.Error("Batch processing error",
+				"batch", result.BatchIndex,
 				"error", result.Error)
 			errorCount++
 			continue
 		}
-		
+
 		batchResults[result.BatchIndex] = result
 		totalParseErrors += result.ParseErrors
 		if result.BatchIndex > maxBatchIndex {
 			maxBatchIndex = result.BatchIndex
 		}
-		
-		p.logger.Debug("Batch completed", 
-			"batch", result.BatchIndex, 
+
+		p.logger.Debug("Batch completed",
+			"batch", result.BatchIndex,
 			"transactions", len(result.Transactions),
 			"parse_errors", result.ParseErrors)
 	}
 
 	// Wait for batch count
 	totalBatches := <-batchCount
-	p.logger.Info("Batch processing summary", 
+	p.logger.Info("Batch processing summary",
 		"total_batches", totalBatches,
 		"completed_batches", len(batchResults),
 		"max_batch_index", maxBatchIndex)
@@ -138,9 +138,9 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 			missingBatches++
 		}
 	}
-	
+
 	if missingBatches > 0 {
-		p.logger.Error("CRITICAL: Missing batches detected", 
+		p.logger.Error("CRITICAL: Missing batches detected",
 			"missing_count", missingBatches,
 			"total_batches", totalBatches)
 	}
@@ -168,11 +168,11 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 		MemoryUsageMB:    memoryUsageMB,
 	}
 
-	p.logger.Info("CSV processing completed", 
+	p.logger.Info("CSV processing completed",
 		"total_records", totalRecords,
-		"processed_records", len(allTransactions), 
+		"processed_records", len(allTransactions),
 		"parse_errors", totalParseErrors,
-		"batch_errors", errorCount, 
+		"batch_errors", errorCount,
 		"missing_batches", missingBatches,
 		"duration", stats.ProcessingTime,
 		"memory_mb", memoryUsageMB)
@@ -180,7 +180,7 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 	// CRITICAL CHECK: Verify we didn't lose data
 	expectedRecords := totalBatches * p.batchSize // Approximate
 	if float64(len(allTransactions)) < float64(expectedRecords)*0.95 {
-		p.logger.Error("CRITICAL: Significant data loss detected", 
+		p.logger.Error("CRITICAL: Significant data loss detected",
 			"expected_approx", expectedRecords,
 			"actual", len(allTransactions),
 			"loss_percentage", float64(expectedRecords-len(allTransactions))/float64(expectedRecords)*100)
@@ -248,7 +248,7 @@ func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batc
 				}
 			}
 			batchCount <- batchIndex
-			p.logger.Info("Finished reading CSV", 
+			p.logger.Info("Finished reading CSV",
 				"total_rows_read", totalRowsRead,
 				"total_batches", batchIndex)
 			return
@@ -294,20 +294,20 @@ func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan 
 
 		batch := indexedBatch.Records
 		batchIndex := indexedBatch.Index
-		
+
 		transactions := make([]models.Transaction, 0, len(batch))
 		parseErrors := 0
-		
+
 		for rowIndex, record := range batch {
 			var transaction models.Transaction
 			if err := transaction.ParseCSVRow(record); err != nil {
 				parseErrors++
 				if parseErrors <= 5 { // Log first 5 errors per batch
-					p.logger.Debug("Failed to parse CSV row", 
+					p.logger.Debug("Failed to parse CSV row",
 						"worker", workerID,
 						"batch", batchIndex,
 						"row", rowIndex,
-						"error", err, 
+						"error", err,
 						"record_length", len(record))
 				}
 				continue
@@ -315,7 +315,7 @@ func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan 
 			transactions = append(transactions, transaction)
 		}
 
-		p.logger.Debug("Worker processed batch", 
+		p.logger.Debug("Worker processed batch",
 			"worker", workerID,
 			"batch", batchIndex,
 			"input_rows", len(batch),

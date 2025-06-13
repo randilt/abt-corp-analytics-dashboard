@@ -21,7 +21,7 @@ func Recovery(logger logger.Logger) func(http.Handler) http.Handler {
 						"stack", string(debug.Stack()),
 					)
 
-					utils.WriteErrorResponse(w, http.StatusInternalServerError, 
+					utils.WriteErrorResponse(w, http.StatusInternalServerError,
 						"Internal server error occurred")
 				}
 			}()

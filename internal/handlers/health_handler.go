@@ -27,15 +27,15 @@ func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 	runtime.ReadMemStats(&memStats)
 
 	health := map[string]interface{}{
-		"status":     "healthy",
-		"timestamp":  time.Now().UTC(),
-		"uptime":     time.Since(h.startTime).String(),
-		"version":    "1.0.0",
+		"status":    "healthy",
+		"timestamp": time.Now().UTC(),
+		"uptime":    time.Since(h.startTime).String(),
+		"version":   "1.0.0",
 		"memory": map[string]interface{}{
-			"alloc_mb":      float64(memStats.Alloc) / 1024 / 1024,
+			"alloc_mb":       float64(memStats.Alloc) / 1024 / 1024,
 			"total_alloc_mb": float64(memStats.TotalAlloc) / 1024 / 1024,
-			"sys_mb":        float64(memStats.Sys) / 1024 / 1024,
-			"num_gc":        memStats.NumGC,
+			"sys_mb":         float64(memStats.Sys) / 1024 / 1024,
+			"num_gc":         memStats.NumGC,
 		},
 		"goroutines": runtime.NumGoroutine(),
 	}
@@ -46,7 +46,7 @@ func (h *HealthHandler) Health(w http.ResponseWriter, r *http.Request) {
 // Ready returns readiness status
 func (h *HealthHandler) Ready(w http.ResponseWriter, r *http.Request) {
 	ready := map[string]interface{}{
-		"status": "ready",
+		"status":    "ready",
 		"timestamp": time.Now().UTC(),
 	}
 

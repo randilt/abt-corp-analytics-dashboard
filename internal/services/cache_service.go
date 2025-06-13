@@ -83,7 +83,7 @@ func (c *CacheService) LoadFromFile(filePath string) (*models.AnalyticsResponse,
 
 	// Save to memory cache
 	c.SaveToMemory(&analytics)
-	
+
 	c.logger.Info("Cache loaded from file", "path", filePath, "records", analytics.TotalRecords)
 	return &analytics, nil
 }

@@ -11,7 +11,6 @@ import (
 
 type AnalyticsService struct {
 	logger logger.Logger
-	mu     sync.RWMutex
 }
 
 func NewAnalyticsService(logger logger.Logger) *AnalyticsService {
@@ -81,15 +80,15 @@ func (s *AnalyticsService) generateCountryRevenue(transactions []models.Transact
 
 	for _, t := range transactions {
 		key := t.Country + "|" + t.ProductName
-		
+
 		if entry, exists := revenueMap[key]; exists {
 			entry.TotalRevenue += t.TotalPrice
 			entry.TransactionCount++
 		} else {
 			revenueMap[key] = &models.CountryRevenue{
-				Country:         t.Country,
-				ProductName:     t.ProductName,
-				TotalRevenue:    t.TotalPrice,
+				Country:          t.Country,
+				ProductName:      t.ProductName,
+				TotalRevenue:     t.TotalPrice,
 				TransactionCount: 1,
 			}
 		}
@@ -151,7 +150,7 @@ func (s *AnalyticsService) generateMonthlySales(transactions []models.Transactio
 
 	for _, t := range transactions {
 		month := t.GetMonth()
-		
+
 		if entry, exists := monthlyMap[month]; exists {
 			entry.SalesVolume += t.TotalPrice
 			entry.ItemCount += t.Quantity

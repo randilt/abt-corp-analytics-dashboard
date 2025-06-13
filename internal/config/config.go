@@ -8,10 +8,10 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	CSV      CSVConfig
-	Cache    CacheConfig
-	Logger   LoggerConfig
+	Server ServerConfig
+	CSV    CSVConfig
+	Cache  CacheConfig
+	Logger LoggerConfig
 }
 
 type ServerConfig struct {
@@ -23,10 +23,10 @@ type ServerConfig struct {
 }
 
 type CSVConfig struct {
-	FilePath    string
-	BatchSize   int
-	WorkerPool  int
-	BufferSize  int
+	FilePath   string
+	BatchSize  int
+	WorkerPool int
+	BufferSize int
 }
 
 type CacheConfig struct {
@@ -113,7 +113,7 @@ func getEnvAsDuration(key string, defaultValue string) time.Duration {
 			return duration
 		}
 	}
-	
+
 	duration, _ := time.ParseDuration(defaultValue)
 	return duration
 }
