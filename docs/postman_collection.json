@@ -1,0 +1,150 @@
+{
+  "info": {
+    "name": "Analytics Dashboard API",
+    "description": "High-performance analytics dashboard API built with Go",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "api_version",
+      "value": "v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Readiness Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/ready",
+          "host": ["{{base_url}}"],
+          "path": ["ready"]
+        }
+      }
+    },
+    {
+      "name": "Complete Analytics Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics"]
+        }
+      }
+    },
+    {
+      "name": "Analytics Stats Only",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/stats",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "stats"]
+        }
+      }
+    },
+    {
+      "name": "Country Revenue (Default)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/country-revenue",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "country-revenue"]
+        }
+      }
+    },
+    {
+      "name": "Country Revenue (Paginated)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/country-revenue?limit=50&offset=0",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "country-revenue"],
+          "query": [
+            { "key": "limit", "value": "50" },
+            { "key": "offset", "value": "0" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Top Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/top-products",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "top-products"]
+        }
+      }
+    },
+    {
+      "name": "Monthly Sales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/monthly-sales",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "monthly-sales"]
+        }
+      }
+    },
+    {
+      "name": "Top Regions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/top-regions",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "top-regions"]
+        }
+      }
+    },
+    {
+      "name": "Refresh Cache",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/analytics/refresh",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "analytics", "refresh"]
+        }
+      }
+    }
+  ]
+}
