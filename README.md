@@ -50,7 +50,7 @@ Note: The full dataset is large (500+ MB) and contains millions of transaction r
 
 ## Setup
 
-### Quick Start Script
+### Quick Start Script ⚡
 
 Use `start.sh` script that automates the setup and startup process:
 
@@ -113,6 +113,49 @@ Or start with docker-compose:
 
 ```bash
 docker-compose up -d
+```
+
+## Configuration
+
+The application can be configured using environment variables:
+
+### Server Configuration
+
+```bash
+SERVER_HOST=localhost          # Server hostname
+SERVER_PORT=8080              # Server port
+SERVER_READ_TIMEOUT=15s       # Read timeout
+SERVER_WRITE_TIMEOUT=15s      # Write timeout
+SERVER_IDLE_TIMEOUT=60s       # Idle timeout
+```
+
+### CSV Processing Configuration
+
+```bash
+CSV_FILE_PATH=./data/raw/transactions.csv  # Path to CSV file
+CSV_BATCH_SIZE=10000          # Number of records to process in each batch
+CSV_WORKER_POOL=8             # Number of concurrent workers (reduce if high resource usage)
+CSV_BUFFER_SIZE=65536         # Buffer size for CSV reading
+```
+
+### Cache Configuration
+
+```bash
+CACHE_FILE_PATH=./data/processed/analytics_cache.json  # Path to cache file
+CACHE_TTL=24h                 # Cache time-to-live
+```
+
+### Logging Configuration
+
+```bash
+LOG_LEVEL=info               # Log level (debug, info, warn, error)
+```
+
+Example usage:
+
+```bash
+# Run with custom configuration
+CSV_BATCH_SIZE=5000 CSV_WORKER_POOL=4 ./bin/server
 ```
 
 ## Accessing the Dashboard
