@@ -53,6 +53,20 @@ interface StatsResponse {
   top_regions_count: number;
 }
 
+interface CountryRevenuePaginatedResponse {
+  data: CountryRevenue[];
+  count: number;
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
+interface DataResponse<T> {
+  data: T[];
+  count: number;
+}
+
 async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit
@@ -87,24 +101,28 @@ export async function getStats(): Promise<StatsResponse> {
 export async function getCountryRevenue(
   limit = 100,
   offset = 0
-): Promise<{ data: CountryRevenue[] }> {
-  return fetchApi<{ data: CountryRevenue[] }>(
+): Promise<CountryRevenuePaginatedResponse> {
+  return fetchApi<CountryRevenuePaginatedResponse>(
     `/api/v1/analytics/country-revenue?limit=${limit}&offset=${offset}`
   );
 }
 
-export async function getTopProducts(): Promise<{ data: ProductFrequency[] }> {
-  return fetchApi<{ data: ProductFrequency[] }>(
+export async function getTopProducts(): Promise<
+  DataResponse<ProductFrequency>
+> {
+  return fetchApi<DataResponse<ProductFrequency>>(
     "/api/v1/analytics/top-products"
   );
 }
 
-export async function getMonthlySales(): Promise<{ data: MonthlySales[] }> {
-  return fetchApi<{ data: MonthlySales[] }>("/api/v1/analytics/monthly-sales");
+export async function getMonthlySales(): Promise<DataResponse<MonthlySales>> {
+  return fetchApi<DataResponse<MonthlySales>>(
+    "/api/v1/analytics/monthly-sales"
+  );
 }
 
-export async function getTopRegions(): Promise<{ data: RegionRevenue[] }> {
-  return fetchApi<{ data: RegionRevenue[] }>("/api/v1/analytics/top-regions");
+export async function getTopRegions(): Promise<DataResponse<RegionRevenue>> {
+  return fetchApi<DataResponse<RegionRevenue>>("/api/v1/analytics/top-regions");
 }
 
 export async function refreshCache(): Promise<{ message: string }> {
@@ -124,4 +142,6 @@ export type {
   RegionRevenue,
   AnalyticsResponse,
   StatsResponse,
+  CountryRevenuePaginatedResponse,
+  DataResponse,
 };
