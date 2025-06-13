@@ -52,10 +52,7 @@ func (h *AnalyticsHandler) GetAnalytics(w http.ResponseWriter, r *http.Request) 
 		summary := h.createAnalyticsSummary(analytics)
 		utils.WriteJSONResponse(w, http.StatusOK, summary)
 		return
-	}
-
-	// Try loading from file cache
-	if analytics, err := h.cacheService.LoadFromFile(h.cachePath); err == nil {
+	} else if analytics, err := h.cacheService.LoadFromFile(h.cachePath); err == nil {
 		h.logger.Info("Serving from file cache", "duration", time.Since(startTime))
 		analytics.CacheHit = true
 
@@ -64,7 +61,7 @@ func (h *AnalyticsHandler) GetAnalytics(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Process CSV if no cache
+	// Process CSV if not in cache
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
@@ -287,12 +284,13 @@ func (h *AnalyticsHandler) createAnalyticsSummary(analytics *models.AnalyticsRes
 		},
 		"country_revenue":  countryRevenue,
 		"top_products":     topProducts,
-		"monthly_sales":    analytics.MonthlySales, // Usually not too large
+		"monthly_sales":    analytics.MonthlySales,
 		"top_regions":      topRegions,
 		"message": "Use specific endpoints with pagination for complete data: /api/v1/analytics/country-revenue?limit=100&offset=0",
 	}
 }
 
+// Helper function to get integer query parameter with default value
 func (h *AnalyticsHandler) getIntQueryParam(r *http.Request, key string, defaultValue int) int {
 	if value := r.URL.Query().Get(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil && intValue >= 0 {
@@ -301,3 +299,4 @@ func (h *AnalyticsHandler) getIntQueryParam(r *http.Request, key string, default
 	}
 	return defaultValue
 }
+
