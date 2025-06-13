@@ -54,7 +54,7 @@ func NewCSVProcessor(logger logger.Logger) *CSVProcessor {
 	}
 }
 
-// COMPLETELY FIXED: ProcessLargeCSV with proper batch indexing
+// ProcessLargeCSV processes a large CSV file in batches using multiple goroutines
 func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*ProcessingResult, error) {
 	startTime := time.Now()
 	p.logger.Info("Starting CSV processing", "file", filePath)
@@ -179,7 +179,8 @@ func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*P
 
 	// CRITICAL CHECK: Verify we didn't lose data
 	expectedRecords := totalBatches * p.batchSize // Approximate
-	if float64(len(allTransactions)) < float64(expectedRecords)*0.95 {
+	if float64(len(allTransactions)) < float64(expectedRecords)*0.95 { // If the loss is more than 5%
+		// Log critical error with detailed stats
 		p.logger.Error("CRITICAL: Significant data loss detected",
 			"expected_approx", expectedRecords,
 			"actual", len(allTransactions),
@@ -214,7 +215,7 @@ func (p *CSVProcessor) PreprocessAndCache(ctx context.Context, csvPath, cachePat
 	return &result.Stats, nil
 }
 
-// FIXED: readBatches with proper batch indexing
+// readBatches reads CSV records in batches and sends them to the batch channel
 func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batchChan chan<- IndexedBatch, batchCount chan<- int) {
 	defer close(batchChan)
 
@@ -280,7 +281,7 @@ func (p *CSVProcessor) readBatches(ctx context.Context, reader *csv.Reader, batc
 	}
 }
 
-// COMPLETELY FIXED: processBatchWorker that uses the correct batch index
+// 	processBatchWorker processes batches of CSV records concurrently
 func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan IndexedBatch, resultChan chan<- BatchResult, wg *sync.WaitGroup, workerID int) {
 	defer wg.Done()
 
@@ -325,7 +326,7 @@ func (p *CSVProcessor) processBatchWorker(ctx context.Context, batchChan <-chan 
 		// Send result with correct batch index
 		resultChan <- BatchResult{
 			Transactions: transactions,
-			BatchIndex:   batchIndex, // Now this is the correct index from readBatches
+			BatchIndex:   batchIndex,
 			ParseErrors:  parseErrors,
 		}
 	}
