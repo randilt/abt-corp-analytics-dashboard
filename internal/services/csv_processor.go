@@ -16,6 +16,13 @@ import (
 	"analytics-dashboard-api/pkg/logger"
 )
 
+var (
+	// Global mutex to prevent concurrent CSV processing
+	// The application crashed when multiple getanalytics requests were made (with cache reset)
+	// simultaneously, so we use a global mutex to ensure only one CSV processing
+	globalProcessingMu sync.Mutex 
+)
+
 type CSVProcessor struct {
 	logger     logger.Logger
 	batchSize  int
@@ -55,6 +62,10 @@ func NewCSVProcessor(logger logger.Logger, csvConfig *config.CSVConfig, cacheCon
 
 // ProcessLargeCSV processes a large CSV file in batches using multiple goroutines
 func (p *CSVProcessor) ProcessLargeCSV(ctx context.Context, filePath string) (*ProcessingResult, error) {
+	// Acquire global lock to prevent concurrent processing
+	globalProcessingMu.Lock()
+	defer globalProcessingMu.Unlock()
+
 	startTime := time.Now()
 	p.logger.Info("Starting CSV processing", "file", filePath)
 

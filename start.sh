@@ -75,6 +75,24 @@ cd ..
 ./bin/server &
 BACKEND_PID=$!
 
+# Wait for backend to be ready
+print_status "Waiting for backend to be ready..."
+max_attempts=30
+attempt=1
+while [ $attempt -le $max_attempts ]; do
+    if curl -s http://localhost:8080/health > /dev/null; then
+        print_status "Backend is ready!"
+        break
+    fi
+    if [ $attempt -eq $max_attempts ]; then
+        print_error "Backend failed to start within timeout"
+        kill $BACKEND_PID 2>/dev/null
+        exit 1
+    fi
+    attempt=$((attempt + 1))
+    sleep 1
+done
+
 # Start frontend in background
 cd web
 npm run preview &
