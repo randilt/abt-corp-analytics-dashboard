@@ -4,6 +4,8 @@ High-performance analytics dashboard for ABT Corporation's transaction data. Bui
 
 Author: [Randil Tharusha](https://randiltharusha.me)
 
+![APP SCREENSHOT](https://github.com/user-attachments/assets/e16777f0-fa59-41e4-8fdb-1c4e727ac3a9)
+
 ## Features
 
 - Country-level revenue analysis with transaction counts
