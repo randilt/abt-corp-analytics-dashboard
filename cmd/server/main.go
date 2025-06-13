@@ -122,8 +122,5 @@ func setupRouter(
 	router.HandleFunc("/health", healthHandler.Health).Methods("GET")
 	router.HandleFunc("/ready", healthHandler.Ready).Methods("GET")
 
-	// Route to serve frontend (not needed for now)
-	// router.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/build/")))
-
 	return router
 }
