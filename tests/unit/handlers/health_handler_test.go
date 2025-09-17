@@ -10,6 +10,15 @@ import (
 	"analytics-dashboard-api/internal/handlers"
 )
 
+// mockLogger is a simple mock implementation of logger.Logger
+type mockLogger struct{}
+
+func (m *mockLogger) Debug(msg string, fields ...interface{}) {}
+func (m *mockLogger) Info(msg string, fields ...interface{})  {}
+func (m *mockLogger) Warn(msg string, fields ...interface{})  {}
+func (m *mockLogger) Error(msg string, fields ...interface{}) {}
+func (m *mockLogger) Fatal(msg string, fields ...interface{}) {}
+
 func TestHealthHandler_Health(t *testing.T) {
 	logger := &mockLogger{}
 	handler := handlers.NewHealthHandler(logger)

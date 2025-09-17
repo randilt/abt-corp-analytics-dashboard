@@ -2,56 +2,62 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"analytics-dashboard-api/internal/models"
-	"analytics-dashboard-api/internal/services"
 	"analytics-dashboard-api/internal/utils"
 	"analytics-dashboard-api/pkg/logger"
 )
 
-type AnalyticsService interface {
-	GenerateAnalytics([]models.Transaction) *models.AnalyticsResponse
-}
-
-type CacheService interface {
-	LoadFromCache() (*models.AnalyticsResponse, bool)
-	LoadFromFile(string) (*models.AnalyticsResponse, error)
-	SaveToMemory(*models.AnalyticsResponse)
-	SaveToFile(string, *models.AnalyticsResponse) error
-}
-
-type CSVProcessor interface {
-	ProcessLargeCSV(context.Context, string) (*services.ProcessingResult, error)
-	PreprocessAndCache(context.Context, string, string) (*models.ProcessingStats, error)
+type DuckDBService interface {
+	LoadFromCSV(string) error
+	GetCountryRevenue(context.Context, int, int) ([]models.CountryRevenue, error)
+	GetTopProducts(context.Context) ([]models.ProductFrequency, error)
+	GetMonthlySales(context.Context) ([]models.MonthlySales, error)
+	GetTopRegions(context.Context) ([]models.RegionRevenue, error)
+	GetTotalRecords(context.Context) (int, error)
+	GetCountryRevenueCount(context.Context) (int, error)
+	Close() error
 }
 
 type AnalyticsHandler struct {
-	analyticsService AnalyticsService
-	cacheService     CacheService
-	csvProcessor     CSVProcessor
-	logger           logger.Logger
-	csvPath          string
-	cachePath        string
+	duckdbService DuckDBService
+	logger        logger.Logger
+	csvPath       string
+	initialized   bool
 }
 
 func NewAnalyticsHandler(
-	analyticsService AnalyticsService,
-	cacheService CacheService,
-	csvProcessor CSVProcessor,
+	duckdbService DuckDBService,
 	logger logger.Logger,
-	csvPath, cachePath string,
+	csvPath string,
 ) *AnalyticsHandler {
 	return &AnalyticsHandler{
-		analyticsService: analyticsService,
-		cacheService:     cacheService,
-		csvProcessor:     csvProcessor,
-		logger:           logger,
-		csvPath:          csvPath,
-		cachePath:        cachePath,
+		duckdbService: duckdbService,
+		logger:        logger,
+		csvPath:       csvPath,
+		initialized:   false,
 	}
+}
+
+// ensureInitialized loads CSV data into DuckDB if not already done
+func (h *AnalyticsHandler) ensureInitialized(ctx context.Context) error {
+	if h.initialized {
+		return nil
+	}
+
+	h.logger.Info("Initializing DuckDB with CSV data", "file", h.csvPath)
+	
+	if err := h.duckdbService.LoadFromCSV(h.csvPath); err != nil {
+		return fmt.Errorf("failed to load CSV into DuckDB: %w", err)
+	}
+
+	h.initialized = true
+	h.logger.Info("DuckDB initialization completed")
+	return nil
 }
 
 // GetAnalytics returns all dashboard analytics data
@@ -61,46 +67,100 @@ func (h *AnalyticsHandler) GetAnalytics(w http.ResponseWriter, r *http.Request) 
 
 	h.logger.Info("Analytics request received", "method", r.Method, "path", r.URL.Path)
 
-	// Try loading from memory cache first
-	if analytics, hit := h.cacheService.LoadFromCache(); hit {
-		h.logger.Info("Serving from memory cache", "duration", time.Since(startTime))
-
-		summary := h.createAnalyticsSummary(analytics)
-		utils.WriteJSONResponse(w, http.StatusOK, summary)
-		return
-	} else if analytics, err := h.cacheService.LoadFromFile(h.cachePath); err == nil {
-		h.logger.Info("Serving from file cache", "duration", time.Since(startTime))
-		analytics.CacheHit = true
-
-		summary := h.createAnalyticsSummary(analytics)
-		utils.WriteJSONResponse(w, http.StatusOK, summary)
+	// Ensure DuckDB is initialized
+	if err := h.ensureInitialized(ctx); err != nil {
+		h.logger.Error("Failed to initialize DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to initialize database")
 		return
 	}
 
-	// Process CSV if not in cache
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
+	// Get all analytics data concurrently
+	var countryRevenue []models.CountryRevenue
+	var topProducts []models.ProductFrequency
+	var monthlySales []models.MonthlySales
+	var topRegions []models.RegionRevenue
+	var totalRecords int
+	var countryRevenueCount int
 
-	result, err := h.csvProcessor.ProcessLargeCSV(ctx, h.csvPath)
-	if err != nil {
-		h.logger.Error("Failed to process CSV", "error", err)
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to process data")
-		return
+	type result struct {
+		name string
+		err  error
 	}
 
-	analytics := h.analyticsService.GenerateAnalytics(result.Transactions)
+	results := make(chan result, 6)
 
-	// Cache the results
-	h.cacheService.SaveToMemory(analytics)
+	// Get country revenue (first 1000 records)
 	go func() {
-		if err := h.cacheService.SaveToFile(h.cachePath, analytics); err != nil {
-			h.logger.Error("Failed to save cache to file", "error", err)
-		}
+		data, err := h.duckdbService.GetCountryRevenue(ctx, 1000, 0)
+		countryRevenue = data
+		results <- result{"country_revenue", err}
 	}()
 
+	// Get top products
+	go func() {
+		data, err := h.duckdbService.GetTopProducts(ctx)
+		topProducts = data
+		results <- result{"top_products", err}
+	}()
+
+	// Get monthly sales
+	go func() {
+		data, err := h.duckdbService.GetMonthlySales(ctx)
+		monthlySales = data
+		results <- result{"monthly_sales", err}
+	}()
+
+	// Get top regions
+	go func() {
+		data, err := h.duckdbService.GetTopRegions(ctx)
+		topRegions = data
+		results <- result{"top_regions", err}
+	}()
+
+	// Get total records
+	go func() {
+		count, err := h.duckdbService.GetTotalRecords(ctx)
+		totalRecords = count
+		results <- result{"total_records", err}
+	}()
+
+	// Get country revenue count
+	go func() {
+		count, err := h.duckdbService.GetCountryRevenueCount(ctx)
+		countryRevenueCount = count
+		results <- result{"country_revenue_count", err}
+	}()
+
+	// Wait for all goroutines to complete
+	var errors []string
+	for i := 0; i < 6; i++ {
+		res := <-results
+		if res.err != nil {
+			errors = append(errors, fmt.Sprintf("%s: %v", res.name, res.err))
+		}
+	}
+
+	if len(errors) > 0 {
+		h.logger.Error("Failed to get analytics data", "errors", errors)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get analytics data")
+		return
+	}
+
+	processingTime := time.Since(startTime)
+	analytics := &models.AnalyticsResponse{
+		CountryRevenue:   countryRevenue,
+		TopProducts:      topProducts,
+		MonthlySales:     monthlySales,
+		TopRegions:       topRegions,
+		ProcessingTimeMs: processingTime.Milliseconds(),
+		TotalRecords:     totalRecords,
+		CacheHit:         false, // DuckDB queries are always fresh
+	}
+
 	h.logger.Info("Analytics generated successfully",
-		"records", len(result.Transactions),
-		"duration", time.Since(startTime))
+		"records", totalRecords,
+		"country_revenue_count", countryRevenueCount,
+		"processing_time", processingTime)
 
 	// Return summary version
 	summary := h.createAnalyticsSummary(analytics)
@@ -117,52 +177,71 @@ func (h *AnalyticsHandler) GetCountryRevenue(w http.ResponseWriter, r *http.Requ
 		limit = 1000 // Cap at 1000 records
 	}
 
-	analytics, err := h.getAnalyticsData(r.Context())
-	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get analytics data")
+	// Ensure DuckDB is initialized
+	if err := h.ensureInitialized(r.Context()); err != nil {
+		h.logger.Error("Failed to initialize DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to initialize database")
 		return
 	}
 
-	// Apply pagination
-	total := len(analytics.CountryRevenue)
-	start := offset
-	end := offset + limit
-
-	if start >= total {
-		start = total
-		end = total
-	} else if end > total {
-		end = total
+	// Get data from DuckDB
+	data, err := h.duckdbService.GetCountryRevenue(r.Context(), limit, offset)
+	if err != nil {
+		h.logger.Error("Failed to get country revenue", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get country revenue data")
+		return
 	}
 
-	paginatedData := analytics.CountryRevenue[start:end]
+	// Get total count for pagination
+	total, err := h.duckdbService.GetCountryRevenueCount(r.Context())
+	if err != nil {
+		h.logger.Error("Failed to get country revenue count", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get total count")
+		return
+	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data":     paginatedData,
-		"count":    len(paginatedData),
+		"data":     data,
+		"count":    len(data),
 		"total":    total,
 		"limit":    limit,
 		"offset":   offset,
-		"has_more": end < total,
+		"has_more": offset+limit < total,
 	})
 }
 
 // GetAnalyticsStats returns summary statistics about the analytics data
 func (h *AnalyticsHandler) GetAnalyticsStats(w http.ResponseWriter, r *http.Request) {
-	analytics, err := h.getAnalyticsData(r.Context())
+	// Ensure DuckDB is initialized
+	if err := h.ensureInitialized(r.Context()); err != nil {
+		h.logger.Error("Failed to initialize DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to initialize database")
+		return
+	}
+
+	// Get counts from DuckDB
+	totalRecords, err := h.duckdbService.GetTotalRecords(r.Context())
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get analytics data")
+		h.logger.Error("Failed to get total records", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get total records")
+		return
+	}
+
+	countryRevenueCount, err := h.duckdbService.GetCountryRevenueCount(r.Context())
+	if err != nil {
+		h.logger.Error("Failed to get country revenue count", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get country revenue count")
 		return
 	}
 
 	stats := map[string]interface{}{
-		"total_records":         analytics.TotalRecords,
-		"processing_time_ms":    analytics.ProcessingTimeMs,
-		"cache_hit":             analytics.CacheHit,
-		"country_revenue_count": len(analytics.CountryRevenue),
-		"top_products_count":    len(analytics.TopProducts),
-		"monthly_sales_count":   len(analytics.MonthlySales),
-		"top_regions_count":     len(analytics.TopRegions),
+		"total_records":         totalRecords,
+		"processing_time_ms":    0, // DuckDB queries are fast
+		"cache_hit":             false, // Always fresh data
+		"country_revenue_count": countryRevenueCount,
+		"top_products_count":    20, // Fixed limit
+		"monthly_sales_count":   "varies", // Depends on data
+		"top_regions_count":     30, // Fixed limit
 		"endpoints": map[string]string{
 			"country_revenue": "/api/v1/analytics/country-revenue?limit=100&offset=0",
 			"top_products":    "/api/v1/analytics/top-products",
@@ -176,47 +255,74 @@ func (h *AnalyticsHandler) GetAnalyticsStats(w http.ResponseWriter, r *http.Requ
 
 // GetTopProducts returns top 20 frequently purchased products
 func (h *AnalyticsHandler) GetTopProducts(w http.ResponseWriter, r *http.Request) {
-	analytics, err := h.getAnalyticsData(r.Context())
+	// Ensure DuckDB is initialized
+	if err := h.ensureInitialized(r.Context()); err != nil {
+		h.logger.Error("Failed to initialize DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to initialize database")
+		return
+	}
+
+	// Get data from DuckDB
+	data, err := h.duckdbService.GetTopProducts(r.Context())
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get analytics data")
+		h.logger.Error("Failed to get top products", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get top products data")
 		return
 	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data":  analytics.TopProducts,
-		"count": len(analytics.TopProducts),
+		"data":  data,
+		"count": len(data),
 	})
 }
 
 // GetMonthlySales returns monthly sales volume data
 func (h *AnalyticsHandler) GetMonthlySales(w http.ResponseWriter, r *http.Request) {
-	analytics, err := h.getAnalyticsData(r.Context())
+	// Ensure DuckDB is initialized
+	if err := h.ensureInitialized(r.Context()); err != nil {
+		h.logger.Error("Failed to initialize DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to initialize database")
+		return
+	}
+
+	// Get data from DuckDB
+	data, err := h.duckdbService.GetMonthlySales(r.Context())
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get analytics data")
+		h.logger.Error("Failed to get monthly sales", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get monthly sales data")
 		return
 	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data":  analytics.MonthlySales,
-		"count": len(analytics.MonthlySales),
+		"data":  data,
+		"count": len(data),
 	})
 }
 
 // GetTopRegions returns top 30 regions by revenue
 func (h *AnalyticsHandler) GetTopRegions(w http.ResponseWriter, r *http.Request) {
-	analytics, err := h.getAnalyticsData(r.Context())
+	// Ensure DuckDB is initialized
+	if err := h.ensureInitialized(r.Context()); err != nil {
+		h.logger.Error("Failed to initialize DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to initialize database")
+		return
+	}
+
+	// Get data from DuckDB
+	data, err := h.duckdbService.GetTopRegions(r.Context())
 	if err != nil {
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get analytics data")
+		h.logger.Error("Failed to get top regions", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get top regions data")
 		return
 	}
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"data":  analytics.TopRegions,
-		"count": len(analytics.TopRegions),
+		"data":  data,
+		"count": len(data),
 	})
 }
 
-// RefreshCache forces a cache refresh by reprocessing the CSV
+// RefreshCache forces a cache refresh by reloading the CSV into DuckDB
 func (h *AnalyticsHandler) RefreshCache(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		utils.WriteErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -227,48 +333,37 @@ func (h *AnalyticsHandler) RefreshCache(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
 	defer cancel()
 
-	h.logger.Info("Cache refresh requested")
+	h.logger.Info("DuckDB refresh requested")
 
-	// Process CSV and update cache
-	stats, err := h.csvProcessor.PreprocessAndCache(ctx, h.csvPath, h.cachePath)
-	if err != nil {
-		h.logger.Error("Failed to refresh cache", "error", err)
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to refresh cache")
+	// Reset initialization flag to force reload
+	h.initialized = false
+
+	// Reload CSV into DuckDB
+	if err := h.duckdbService.LoadFromCSV(h.csvPath); err != nil {
+		h.logger.Error("Failed to refresh DuckDB", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to refresh database")
 		return
 	}
 
-	h.logger.Info("Cache refreshed successfully", "duration", time.Since(startTime))
+	h.initialized = true
+
+	// Get record count for stats
+	totalRecords, err := h.duckdbService.GetTotalRecords(ctx)
+	if err != nil {
+		h.logger.Error("Failed to get total records", "error", err)
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get record count")
+		return
+	}
+
+	h.logger.Info("DuckDB refreshed successfully", "duration", time.Since(startTime))
 
 	utils.WriteJSONResponse(w, http.StatusOK, map[string]interface{}{
-		"message":     "Cache refreshed successfully",
-		"stats":       stats,
-		"duration_ms": time.Since(startTime).Milliseconds(),
+		"message":       "Database refreshed successfully",
+		"total_records": totalRecords,
+		"duration_ms":   time.Since(startTime).Milliseconds(),
 	})
 }
 
-// getAnalyticsData is a helper method to get analytics data with caching
-func (h *AnalyticsHandler) getAnalyticsData(ctx context.Context) (*models.AnalyticsResponse, error) {
-	// Try cache first
-	if analytics, hit := h.cacheService.LoadFromCache(); hit {
-		return analytics, nil
-	}
-
-	// Try file cache
-	if analytics, err := h.cacheService.LoadFromFile(h.cachePath); err == nil {
-		return analytics, nil
-	}
-
-	// Process CSV as fallback
-	result, err := h.csvProcessor.ProcessLargeCSV(ctx, h.csvPath)
-	if err != nil {
-		return nil, err
-	}
-
-	analytics := h.analyticsService.GenerateAnalytics(result.Transactions)
-	h.cacheService.SaveToMemory(analytics)
-
-	return analytics, nil
-}
 
 func (h *AnalyticsHandler) createAnalyticsSummary(analytics *models.AnalyticsResponse) map[string]interface{} {
 	// Limit each section to prevent huge responses

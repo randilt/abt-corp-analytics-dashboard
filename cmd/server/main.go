@@ -29,18 +29,19 @@ func main() {
 	// Initialize logger
 	log := logger.NewLogger(cfg.Logger.Level)
 	log.Info("Starting analytics dashboard server", "version", "1.0.0")
-	// Initialize services
-	csvProcessor := services.NewCSVProcessor(log, &cfg.CSV, &cfg.Cache)
-	analyticsService := services.NewAnalyticsService(log)
-	cacheService := services.NewCacheService(log, &cfg.Cache)
+	// Initialize DuckDB service
+	duckdbService, err := services.NewDuckDBService(log)
+	if err != nil {
+		log.Error("Failed to initialize DuckDB", "error", err)
+		os.Exit(1)
+	}
+	defer duckdbService.Close()
+
 	// Initialize handlers
 	analyticsHandler := handlers.NewAnalyticsHandler(
-		analyticsService,
-		cacheService,
-		csvProcessor,
+		duckdbService,
 		log,
 		cfg.CSV.FilePath,
-		cfg.Cache.FilePath,
 	)
 	healthHandler := handlers.NewHealthHandler(log)
 

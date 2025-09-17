@@ -10,7 +10,6 @@ import (
 type Config struct {
 	Server ServerConfig
 	CSV    CSVConfig
-	Cache  CacheConfig
 	Logger LoggerConfig
 }
 
@@ -20,20 +19,12 @@ type ServerConfig struct {
 	ReadTimeout     time.Duration
 	WriteTimeout    time.Duration
 	IdleTimeout     time.Duration
-	DefaultCacheTTL time.Duration
 }
 
 type CSVConfig struct {
-	FilePath   string
-	BatchSize  int
-	WorkerPool int
-	BufferSize int
+	FilePath string
 }
 
-type CacheConfig struct {
-	FilePath string
-	TTL      time.Duration
-}
 
 type LoggerConfig struct {
 	Level string
@@ -48,17 +39,9 @@ func LoadConfig() (*Config, error) {
 			ReadTimeout:     getEnvAsDuration("SERVER_READ_TIMEOUT", "15s"),
 			WriteTimeout:    getEnvAsDuration("SERVER_WRITE_TIMEOUT", "15s"),
 			IdleTimeout:     getEnvAsDuration("SERVER_IDLE_TIMEOUT", "60s"),
-			DefaultCacheTTL: getEnvAsDuration("SERVER_DEFAULT_CACHE_TTL", "24h"),
 		},
 		CSV: CSVConfig{
-			FilePath:   getEnv("CSV_FILE_PATH", "./data/raw/transactions.csv"),
-			BatchSize:  getEnvAsInt("CSV_BATCH_SIZE", 10000),
-			WorkerPool: getEnvAsInt("CSV_WORKER_POOL", 8), // reduce this if resource usage becomes an issue
-			BufferSize: getEnvAsInt("CSV_BUFFER_SIZE", 65536),
-		},
-		Cache: CacheConfig{
-			FilePath: getEnv("CACHE_FILE_PATH", "./data/processed/analytics_cache.json"),
-			TTL:      getEnvAsDuration("CACHE_TTL", "24h"),
+			FilePath: getEnv("CSV_FILE_PATH", "./data/raw/transactions.csv"),
 		},
 		Logger: LoggerConfig{
 			Level: getEnv("LOG_LEVEL", "info"),
@@ -82,13 +65,6 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("CSV file path is required")
 	}
 
-	if c.CSV.BatchSize <= 0 {
-		return fmt.Errorf("CSV batch size must be positive")
-	}
-
-	if c.CSV.WorkerPool <= 0 {
-		return fmt.Errorf("CSV worker pool size must be positive")
-	}
 
 	return nil
 }
